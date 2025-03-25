@@ -10,67 +10,6 @@
 #include <SFML/Network.hpp>
 
 
-class Enemy;
-class Minigame;
-class Game {
-private:
-    sf::RenderWindow* window;
-    sf::Event event;
-    sf::VideoMode video_mode;
-    std::vector<Minigame> minigames;
-    void initVariables()
-    {
-        this->window = nullptr;
-    }
-    void initWindow() {
-        this->video_mode.height = 1080;
-        this->video_mode.width = 1920;
-        this->window = new sf::RenderWindow(this->video_mode, "SWIM!", sf::Style::Titlebar | sf::Style::Close);
-    }
-public:
-    //Constructori / Destructori:
-    Game() {
-        this->initVariables();
-        this->initWindow();
-    }
-    ~Game() {
-        delete this->window;
-    }
-    [[nodiscard]] bool isRunning() const {
-        return this->window->isOpen();
-    }
-    void update() {
-        this->pollEvents();
-    }
-    void render() {
-        /*
-         *-renders everything
-         */
-        this->window->clear(sf::Color(255, 255, 255, 255));
-        // DRAW GAME
-
-        // ---
-        this->window->display();
-    }
-    void pollEvents() {
-        while (this->window->pollEvent(this->event)) {
-            switch (this->event.type) {
-                case sf::Event::Closed:
-                    this->window->close();
-                    break;
-                case sf::Event::KeyPressed:
-                    if (sf::Keyboard::Escape == this->event.key.code) {
-                        this->window->close();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-};
-
-
 
 class Player {};
 
@@ -115,6 +54,63 @@ public:
             os << "Enemy " << i << " " << minigame.enemies[i];
         }
         return os;
+    }
+};
+class Game {
+private:
+    sf::RenderWindow* window;
+    sf::Event event;
+    sf::VideoMode video_mode;
+    // std::vector<Minigame> minigames;
+    void initVariables()
+    {
+        this->window = nullptr;
+    }
+    void initWindow() {
+        this->video_mode.height = 1080;
+        this->video_mode.width = 1920;
+        this->window = new sf::RenderWindow(this->video_mode, "SWIM!", sf::Style::Titlebar | sf::Style::Close);
+    }
+public:
+    //Constructori / Destructori:
+    Game() {
+        this->initVariables();
+        this->initWindow();
+    }
+    ~Game() {
+        delete this->window;
+    }
+    [[nodiscard]] bool isRunning() const {
+        return this->window->isOpen();
+    }
+    void update() {
+        this->pollEvents();
+    }
+    void render() {
+        /*
+         *-renders everything
+         */
+        this->window->clear(sf::Color(255, 255, 255, 255));
+        // DRAW GAME
+
+        // ---
+        this->window->display();
+    }
+    void pollEvents() {
+        while (this->window->pollEvent(this->event)) {
+            switch (this->event.type) {
+                case sf::Event::Closed:
+                    this->window->close();
+                break;
+                case sf::Event::KeyPressed:
+                    if (sf::Keyboard::Escape == this->event.key.code) {
+                        this->window->close();
+                    }
+                break;
+                default:
+                    break;
+            }
+        }
     }
 };
 
