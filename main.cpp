@@ -12,18 +12,62 @@
 
 class Enemy;
 class Minigame;
-// DE IMPLEMENTAT:
-// clasele urmatoare:
-// Minigame(contine elemente din clasele minigameurilor), etc.
 class Game {
 private:
-    sf::RenderWindow window;
+    sf::RenderWindow* window;
+    sf::Event event;
     sf::VideoMode video_mode;
     std::vector<Minigame> minigames;
+    void initVariables()
+    {
+        this->window = nullptr;
+    }
+    void initWindow() {
+        this->video_mode.height = 1080;
+        this->video_mode.width = 1920;
+        this->window = new sf::RenderWindow(this->video_mode, "SWIM!", sf::Style::Titlebar | sf::Style::Close);
+    }
 public:
     //Constructori / Destructori:
-    Game() = default;
-    ~Game() = default;
+    Game() {
+        this->initVariables();
+        this->initWindow();
+    }
+    ~Game() {
+        delete this->window;
+    }
+    [[nodiscard]] bool isRunning() const {
+        return this->window->isOpen();
+    }
+    void update() {
+        this->pollEvents();
+    }
+    void render() {
+        /*
+         *-renders everything
+         */
+        this->window->clear(sf::Color(255, 255, 255, 255));
+        // DRAW GAME
+
+        // ---
+        this->window->display();
+    }
+    void pollEvents() {
+        while (this->window->pollEvent(this->event)) {
+            switch (this->event.type) {
+                case sf::Event::Closed:
+                    this->window->close();
+                    break;
+                case sf::Event::KeyPressed:
+                    if (sf::Keyboard::Escape == this->event.key.code) {
+                        this->window->close();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 };
 
 
@@ -62,12 +106,12 @@ private:
     const int minigame_difficulty;
     std::vector<Enemy> enemies;
 public:
-    explicit Minigame(const int max_enemies_ = 1, const int minigame_difficulty_ = 1, const std::vector<Enemy>& enemies_) :
+    explicit Minigame(const int max_enemies_ = 1, const int minigame_difficulty_ = 1, const std::vector<Enemy>& enemies_ = {}) :
     max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemies(enemies_) {}
     friend std::ostream& operator<<(std::ostream& os, const Minigame& minigame) {
         os << "Minigame of difficulty " << minigame.minigame_difficulty << "has "
         << minigame.max_enemies << "max enemies\n";
-        for (int i = 0; i < minigame.enemies.size(); i++) {
+        for (std::size_t i = 0; i < minigame.enemies.size(); i++) {
             os << "Enemy " << i << " " << minigame.enemies[i];
         }
         return os;
@@ -75,6 +119,14 @@ public:
 };
 
 int main() {
+    // Init Game
+    Game game;
+    while (game.isRunning()) {
+        //Update
+        game.update();
 
+        //Render
+        game.render();
+    }
     return 0;
 }
