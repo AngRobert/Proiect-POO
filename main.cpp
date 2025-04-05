@@ -17,7 +17,6 @@ private:
     sf::Texture player_texture;
     sf::Sprite player_sprite;
     sf::Vector2f current_player_position;
-
     float player_movement_speed;
     void setPlayerSize(float const desiredWidth, float const desiredHeight) {
         sf::Vector2u const original_player_texture_size = player_texture.getSize();
@@ -107,9 +106,9 @@ private:
         setEnemySize(100.f, 50.f);
     }
 public:
-    [[nodiscard]] sf::Sprite getEnemySprite() const {
-        return enemy_sprite;
-    }
+    // [[nodiscard]] sf::Sprite getEnemySprite() const {
+    //     return enemy_sprite;
+    // }
     explicit Enemy(const int difficulty_ = 1, int speed_ = 0, int size_ = 1, std::string enemy_type_ = "null") :
         enemy_difficulty(difficulty_), enemy_speed(speed_), enemy_size(size_), enemy_type(std::move(enemy_type_)) {
         this->initEnemy();
