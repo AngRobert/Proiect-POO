@@ -11,7 +11,56 @@
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
-
+class RhythmCircle {
+/*  CIRCLE WHICH DISPLAYS THE OPTIMAL TIMING OF YOUR STROKE IN THE WATER, WHILE ALSO KEEPING COUNT
+ *  OF HOW MANY STROKES YOU'VE DONE SINCE YOUR LAST BREATH
+ */
+private:
+    sf::Texture circle_texture;
+    sf::Sprite circle_sprite;
+    sf::CircleShape outer_circle{150.f};
+    sf::Clock circle_timer;
+public:
+    void draw(sf::RenderTarget& target) const {
+        target.draw(outer_circle);
+        target.draw(circle_sprite);
+    }
+    void resetCircle() {
+        std::cout << "RESET CIRCLE" << std::endl;
+        this->circle_timer.restart();
+        this->outer_circle.setScale(0.8f, 0.8f);
+    }
+    explicit RhythmCircle(const std::string& circle_texture_filename = "", const sf::Vector2f circle_pos = sf::Vector2f(0, 0)) {
+        if (!this->circle_texture.loadFromFile(circle_texture_filename)) {
+            std::cerr << "Failed to load circle texture" << std::endl;
+        }
+        this->circle_sprite.setTexture(circle_texture);
+        this->circle_sprite.setOrigin(this->circle_sprite.getGlobalBounds().width / 2.f,
+                                        this->circle_sprite.getGlobalBounds().height / 2.f);
+        this->outer_circle.setOrigin(this->outer_circle.getGlobalBounds().width / 2.f,
+                                        this->outer_circle.getGlobalBounds().height / 2.f);
+        this->circle_sprite.setPosition(circle_pos);
+        this->circle_sprite.setScale(1.f, 1.f);
+        this->outer_circle.setOutlineColor(sf::Color(64, 255, 0, 255));
+        this->outer_circle.setOutlineThickness(8.f);
+        this->outer_circle.setFillColor(sf::Color(3, 177, 252, 0));
+        this->outer_circle.setPosition(circle_pos);
+        std::cout << this->circle_sprite.getGlobalBounds().width << std::endl;
+        std::cout << this->circle_sprite.getGlobalBounds().height << std::endl;
+    }
+    [[nodiscard]] sf::Sprite getRhythmCircleSprite() const {
+        return circle_sprite;
+    }
+    void updateCircle() {
+        if (this->circle_timer.getElapsedTime().asSeconds() > 1.2f) {
+            this->resetCircle();
+        }
+        this->outer_circle.setScale(this->outer_circle.getScale().x * 0.988012f, this->outer_circle.getScale().y * 0.988012f);
+    }
+    bool isTimingCorrect() const {
+        return this->circle_timer.getElapsedTime().asSeconds() > 0.8f && this->circle_timer.getElapsedTime().asSeconds() < 1.2f;
+    }
+};
 class Player {
 private:
     sf::Texture player_texture;
@@ -97,12 +146,15 @@ public:
     [[nodiscard]] float getBreath() const {
         return this->breath;
     }
+    void draw(sf::RenderTarget& target) const {
+        target.draw(this->player_sprite);
+    }
     void doBreath() {
         this->next_stroke_is_breath = true;
     }
     void updatePlayer(sf::Vector2f location, float deltaTime) {
         // location = mouse position
-        std::cout << *this;
+        //std::cout << *this;
         this->updateBreath();
         if (strokeTimer.getElapsedTime().asSeconds() > 2.f && this->isPlayerMoving()) {
             std::cout << "Two seconds have passed since the last stroke" << "\n";
@@ -144,7 +196,7 @@ public:
 
             this->strokes_counter ++;
             if (!this->isPlayerMoving()) {           // IF THE PLAYER STOPPED MOVING BY NOT STROKING IN 2 SECONDS
-                this->player_movement_speed = 150.f;    // THE SPEED RESETS TO THE NORMAL
+                this->player_movement_speed = 150.f;    // THE SPEED RESETS TO NORMAL
             }
             else {
                 if (this->current_stroke == this->previous_stroke) {
@@ -233,6 +285,7 @@ public:
 };
 class Game {
 private:
+    RhythmCircle rhythm_circle{"textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)};
     sf::Font font;
     sf::Text breath_text;
     sf::Text breath_value;
@@ -270,14 +323,16 @@ private:
     void updateText() {
         this->breath_value.setString(std::to_string(static_cast<int>(this->player.getBreath())));
     }
+    void renderCircle() const {
+        this->rhythm_circle.draw(*this->window);
+    }
     void renderText() const {
         this->window->draw(this->breath_text);
         this->window->draw(this->breath_value);
     }
     void renderPlayer() const {
-        this->window->draw(this->player.getPlayerSprite());
+        this->player.draw(*this->window);
     }
-
 public:
     explicit Game() : window(nullptr) {
         this->initWindow();
@@ -313,6 +368,7 @@ public:
         if (this->player.isAlive()) {
             this->updateMousePosition();
             this->updateText();
+            this->rhythm_circle.updateCircle();
             this->player.updatePlayer(this->mouse_position_window, this->updateDeltaTime());
         }
         else {
@@ -326,6 +382,7 @@ public:
         this->window->clear(sf::Color(3, 177, 252, 255));
         this->renderPlayer();
         this->renderText();
+        this->renderCircle();
         this->window->display();
     }
     void pollEvents() {
