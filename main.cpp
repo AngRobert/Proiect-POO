@@ -328,7 +328,7 @@ private:
     std::vector<Enemy> enemies;
     sf::Font minigame_font;
     sf::Text minigame_placeholder_text;
-    // sf::Event minigame_event{};
+    // sf::Event minigame_event{} ceva;
 
     // void initEnemies() {
     //     for (int i = 0; i < 5; i ++) {
