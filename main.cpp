@@ -8,7 +8,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
-
 class Point {
 private:
     sf::CircleShape point_shape;
@@ -55,7 +54,7 @@ private:
     sf::Clock circle_timer;
 
     void resetCircle() {
-        std::cout << "RESET CIRCLE" << std::endl;
+        // std::cout << "RESET CIRCLE" << std::endl;
         this->circle_timer.restart();
         this->outer_circle.setScale(0.8f, 0.8f);
     }
@@ -79,8 +78,6 @@ public:
         this->outer_circle.setOutlineThickness(8.f);
         this->outer_circle.setFillColor(sf::Color(3, 177, 252, 0));
         this->outer_circle.setPosition(circle_pos);
-        std::cout << this->circle_sprite.getGlobalBounds().width << std::endl;
-        std::cout << this->circle_sprite.getGlobalBounds().height << std::endl;
     }
     void updateCircle() {
         if (this->circle_timer.getElapsedTime().asSeconds() > 1.2f) {
@@ -119,14 +116,13 @@ private:
         float const scaleX = 100 / static_cast<float>(original_player_texture_size.x);
         float const scaleY = 300 / static_cast<float>(original_player_texture_size.y);
         player_sprite.setScale(scaleX, scaleY);
-        std::cout << *this;
+        // std::cout << *this;
     }
     void movePlayer(sf::Vector2f const normalized_direction, float const deltaTime) {
         sf::Vector2f const movement = normalized_direction * deltaTime * player_movement_speed;
         player_sprite.move(movement);
     }
     void updateBreath() {
-
         /* BREATH LOGIC
          * IF NOT STROKING, GOES DOWN BY 3?/SEC. IF STROKE, GOES DOWN BY 5/SEC. DONE
          * FOR EACH CONSECUTIVE STROKE WITHOUT BREATHING, RATE GOES UP BY 5/SEC. THIS WAY, HAVING MORE STROKES/BREATH IS MORE RISKY DONE
@@ -136,7 +132,6 @@ private:
          *      STROKING THE SAME ARM MORE THAN 3 TIMES IN A ROW (IN THIS CASE SPEED SHOULD ALSO NOT GO UP)
          * OBVIOUSLY, IF BREATH GOES BELOW 0, PLAYER IS DEAD.
          */
-
         this->breath -= 0.05f; //   3 / sec
 
         // checks if player should be alive
@@ -267,29 +262,44 @@ private:
     int enemy_speed;
     int enemy_size;
     std::string enemy_type;
+
+    void generateEnemyPosition() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distribWidth(50, 1870);
+        std::uniform_int_distribution<> distribHeight(50, 1030);
+        const auto X = static_cast<float>(distribWidth(gen));
+        const auto Y = static_cast<float>(distribHeight(gen));
+        this->enemy_sprite.setPosition(X, Y);
+    }
+
     void setEnemySize(float const desiredWidth, float const desiredHeight) {
         sf::Vector2u const original_enemy_texture_size = enemy_texture.getSize();
         float const scaleX = desiredWidth / static_cast<float>(original_enemy_texture_size.x);
         float const scaleY = desiredHeight / static_cast<float>(original_enemy_texture_size.y);
         enemy_sprite.setScale(scaleX, scaleY);
     }
+
     void initEnemy() {
-        this->enemy_sprite.setPosition(sf::Vector2f(140.f, 140.f));
         if (!this->enemy_texture.loadFromFile("textures/fish_texture.png")) {
             std::cerr << "Failed to load texture" << std::endl;
         }
         enemy_sprite.setTexture(enemy_texture);
+        this->generateEnemyPosition();
         setEnemySize(100.f, 50.f);
     }
 public:
     explicit Enemy(const int difficulty_ = 1, int speed_ = 0, int size_ = 1, std::string enemy_type_ = "null") :
         enemy_difficulty(difficulty_), enemy_speed(speed_), enemy_size(size_), enemy_type(std::move(enemy_type_)) {
         this->initEnemy();
-    };
+    }
+
     Enemy(const Enemy& other_enemy) :
         enemy_difficulty(other_enemy.enemy_difficulty), enemy_speed(other_enemy.enemy_speed),
         enemy_size(other_enemy.enemy_size) {}
+
     ~Enemy() = default;
+
     Enemy& operator=(const Enemy& other_enemy) {
         enemy_difficulty = other_enemy.enemy_difficulty;
         enemy_speed = other_enemy.enemy_speed;
@@ -298,10 +308,15 @@ public:
         enemy_texture = other_enemy.enemy_texture;
         return *this;
     }
+
     friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy) {
         os << "has " << enemy.enemy_speed << "speed, " << enemy.enemy_size << "size, "
         << enemy.enemy_difficulty << "difficulty\n";
         return os;
+    }
+
+    void draw(sf::RenderTarget& target) const {
+        target.draw(this->enemy_sprite);
     }
 };
 
@@ -309,10 +324,46 @@ class Minigame {
 private:
     const int max_enemies;
     const int minigame_difficulty;
+    bool minigame_active = false;
     std::vector<Enemy> enemies;
+    sf::Font minigame_font;
+    sf::Text minigame_placeholder_text;
+    // sf::Event minigame_event{};
+
+    void initEnemies() {
+        for (int i = 0; i < 5; i ++) {
+            enemies.emplace_back();
+        }
+    }
+    void initMinigameText() {
+        this->minigame_placeholder_text.setPosition(sf::Vector2f(500.f, 500.f));
+        this->minigame_placeholder_text.setFont(minigame_font);
+        this->minigame_placeholder_text.setCharacterSize(30);
+        this->minigame_placeholder_text.setString("YOU ARE NOW IN A MINIGAME!!!!!!!!! \n "
+                                                  "this is a big WIP.. press space to exit \n "
+                                                  "or B to spawn an enemy at a random location. \n "
+                                                  "Have great fun!");
+        this->minigame_placeholder_text.setFillColor(sf::Color::White);
+    }
+
+    void initMinigameFont() {
+        if (!this->minigame_font.loadFromFile("textures/fonts/papyrus.ttf")) {
+            std::cerr << "Failed to load minigame font" << std::endl;
+        }
+    }
+
+    void renderEnemies(sf::RenderTarget& target) const {
+        for (const auto & enemy : enemies) {
+            enemy.draw(target);
+        }
+    }
+
 public:
     explicit Minigame(const int max_enemies_ = 1, const int minigame_difficulty_ = 1, const std::vector<Enemy>& enemies_ = {}) :
-    max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemies(enemies_) {}
+    max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemies(enemies_) {
+        this->initMinigameFont();
+        this->initMinigameText();
+    }
     friend std::ostream& operator<<(std::ostream& os, const Minigame& minigame) {
         os << "Minigame of difficulty " << minigame.minigame_difficulty << "has "
         << minigame.max_enemies << "max enemies\n";
@@ -321,7 +372,45 @@ public:
         }
         return os;
     }
+    [[nodiscard]] bool isMinigameRunning () const {
+        return this->minigame_active;
+    }
+
+    void updateMinigame() {
+        this->minigame_active = true;
+    }
+
+    void renderMinigame(sf::RenderWindow& target) const {
+        // std::cout << "Render function" << std::endl;
+        target.clear(sf::Color::Black);
+        target.draw(minigame_placeholder_text);
+        this->renderEnemies(target);
+        target.display();
+    }
+
+    void pollMinigameEvents(sf::RenderWindow& window, const sf::Event& event, sf::Clock& minigame_timer) {
+        switch (event.type) {
+            case sf::Event::Closed:
+                window.close();
+                break;
+            case sf::Event::KeyPressed:
+                if (sf::Keyboard::Escape == event.key.code) {
+                    window.close();
+                }
+                if (sf::Keyboard::Space == event.key.code) {
+                    minigame_active = false;
+                    minigame_timer.restart();
+                }
+                else if (sf::Keyboard::B == event.key.code) {
+                    enemies.emplace_back();
+                }
+                break;
+            default:
+                break;
+        }
+    }
 };
+
 class Game {
 private:
     RhythmCircle rhythm_circle{"textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)};
@@ -335,19 +424,22 @@ private:
     sf::RenderWindow* window;
     sf::Event event{};
     sf::Clock clock;
+    sf::Clock minigame_timer_clock;
     sf::VideoMode video_mode;
     sf::Vector2f mouse_position_window;
     Player player;
+    Minigame current_minigame;
+    int minigame_timer = 1000;
     int points_counter = 0;
     int max_points = 5;
     bool end_game = false;
-    // std::vector<Minigame> minigames;
+
     void initFont() {
         if (!this->font.loadFromFile("textures/fonts/Comic_Sans_MS.ttf")) {
             std::cerr << "Failed to load font!" << std::endl;
         }
     }
-    void initText(sf::Text& text, sf::Vector2f const text_position, const std::string& text_string) {
+    void initText(sf::Text& text, sf::Vector2f const text_position, const std::string& text_string){
         text.setFont(this->font);
         text.setPosition(text_position);
         text.setCharacterSize(35);
@@ -386,7 +478,6 @@ private:
                 ++it;
             }
         }
-
     }
     void renderCircle() const {
         this->rhythm_circle.draw(*this->window);
@@ -422,6 +513,13 @@ public:
         this->initText(score_text, text_pos, "Points: ");
         text_pos.x += 130.f;
         this->initText(score_value, text_pos, "");
+        this->generateMinigameTimer();
+    }
+    void generateMinigameTimer() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dist(10, 15);
+        this->minigame_timer = dist(gen);
     }
     ~Game() {
         delete this->window;
@@ -432,17 +530,25 @@ public:
     [[nodiscard]] bool isGameOver() const {
         return this->end_game;
     }
-
+    [[nodiscard]] bool minigameTime() const {
+        return this->minigame_timer_clock.getElapsedTime().asSeconds() > static_cast<float>(this->minigame_timer);
+    }
+    // [[nodiscard]] bool isMinigameRunning() const {
+    //     return this->current_minigame.isMinigameRunning();
+    // }
     float updateDeltaTime() {
         return this->clock.restart().asSeconds();
     }
-    void renderGameOver() {
+    void renderGameOver() const {
         this->window->clear(sf::Color(255, 0, 0, 255));
         this->window->draw(game_over);
         this->window->display();
     }
+    void loadMinigame() {
+        this->current_minigame.updateMinigame();
+        this->current_minigame.renderMinigame(*this->window);
+    }
     void update() {
-        this->pollEvents();
         if (this->player.isAlive()) {
             this->updateMousePosition();
             this->updateText();
@@ -465,25 +571,36 @@ public:
         this->renderPoints();
         this->window->display();
     }
-    void pollEvents() {
-        while (this->window->pollEvent(this->event)) {
-            switch (this->event.type) {
-                case sf::Event::Closed:
+    void pollGameEvents() {
+        switch (this->event.type) {
+            case sf::Event::Closed:
+                this->window->close();
+            break;
+            case sf::Event::KeyPressed:
+                if (sf::Keyboard::Escape == this->event.key.code) {
                     this->window->close();
-                break;
-                case sf::Event::KeyPressed:
-                    if (sf::Keyboard::Escape == this->event.key.code) {
-                        this->window->close();
-                    }
-                    else if (sf::Keyboard::W == this->event.key.code) {
+                }
+                else if (!this->isGameOver() && !this->minigameTime()) {
+                    if (sf::Keyboard::W == this->event.key.code) {
                         this->player.doBreath();
                     }
                     else if (sf::Keyboard::Q == this->event.key.code || sf::Keyboard::E == this->event.key.code) {
                         this->player.doStroke(this->event.key.code);
                     }
+                }
+            break;
+            default:
                 break;
-                default:
-                    break;
+        }
+    }
+    void pollEvents() {
+        while (this->window->pollEvent(this->event)) {
+            if (this->current_minigame.isMinigameRunning()) {
+                // std::cout << "SUNT AICI!! " << std::endl;
+                this->current_minigame.pollMinigameEvents(*this->window, event, minigame_timer_clock);
+            }
+            else {
+                this->pollGameEvents();
             }
         }
     }
@@ -494,13 +611,17 @@ int main() {
     Game game;
     while (game.isRunning()) {
         //Update
-        game.update();
-
         //Render
-        if (!game.isGameOver())
-            game.render();
-        else {
+        game.pollEvents();
+        if (game.isGameOver()) {
             game.renderGameOver();
+        }
+        else if (game.minigameTime()) {
+            game.loadMinigame();
+        }
+        else {
+            game.update();
+            game.render();
         }
     }
     return 0;
