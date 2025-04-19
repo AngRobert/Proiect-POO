@@ -401,7 +401,7 @@ private:
         this->player.draw(*this->window);
     }
     void renderPoints() const {
-        for (auto& point : this->points) {
+        for (const auto& point : this->points) {
             point.draw(*this->window);
         }
     }
