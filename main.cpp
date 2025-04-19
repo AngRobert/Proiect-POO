@@ -330,11 +330,11 @@ private:
     sf::Text minigame_placeholder_text;
     // sf::Event minigame_event{};
 
-    void initEnemies() {
-        for (int i = 0; i < 5; i ++) {
-            enemies.emplace_back();
-        }
-    }
+    // void initEnemies() {
+    //     for (int i = 0; i < 5; i ++) {
+    //         enemies.emplace_back();
+    //     }
+    // }
     void initMinigameText() {
         this->minigame_placeholder_text.setPosition(sf::Vector2f(500.f, 500.f));
         this->minigame_placeholder_text.setFont(minigame_font);
