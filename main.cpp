@@ -1,16 +1,49 @@
 #include <iostream>
 #include <cmath>
+#include <random>
 #include <utility>
 #include <vector>
 #include <chrono>
 #include <string>
-#include <thread>
-#include <valarray>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Network.hpp>
+
+class Point {
+private:
+    sf::CircleShape point_shape;
+
+    void generatePosition() {
+        //Makes sure the point cannot spawn under the rhythm circle
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distribWidth(50, 1870);
+        std::uniform_int_distribution<> distribHeight(50, 1030);
+        float X, Y;
+        do {
+            X = static_cast<float>(distribWidth(gen));
+            Y = static_cast<float>(distribHeight(gen));
+        } while (X >= 810.f && X <= 1110.f && Y >= 0.f && Y <= 310.f);
+
+        point_shape.setPosition(X, Y);
+    }
+
+public:
+    void draw(sf::RenderTarget& target) const {
+        target.draw(point_shape);
+    }
+    explicit Point() {
+        this->point_shape.setRadius(7);
+        this->point_shape.setOrigin(this->point_shape.getGlobalBounds().width / 2,
+                                this->point_shape.getGlobalBounds().height / 2);
+        this->point_shape.setFillColor(sf::Color(243, 255, 13, 255));
+        this->generatePosition();
+    }
+    [[nodiscard]] sf::Vector2f getPosition() const {
+        return this->point_shape.getPosition();
+    }
+};
+
 class RhythmCircle {
 /*  CIRCLE WHICH DISPLAYS THE OPTIMAL TIMING OF YOUR STROKE IN THE WATER, WHILE ALSO KEEPING COUNT
  *  OF HOW MANY STROKES YOU'VE DONE SINCE YOUR LAST BREATH
@@ -20,15 +53,16 @@ private:
     sf::Sprite circle_sprite;
     sf::CircleShape outer_circle{150.f};
     sf::Clock circle_timer;
-public:
-    void draw(sf::RenderTarget& target) const {
-        target.draw(outer_circle);
-        target.draw(circle_sprite);
-    }
+
     void resetCircle() {
         std::cout << "RESET CIRCLE" << std::endl;
         this->circle_timer.restart();
         this->outer_circle.setScale(0.8f, 0.8f);
+    }
+public:
+    void draw(sf::RenderTarget& target) const {
+        target.draw(outer_circle);
+        target.draw(circle_sprite);
     }
     explicit RhythmCircle(const std::string& circle_texture_filename = "", const sf::Vector2f circle_pos = sf::Vector2f(0, 0)) {
         if (!this->circle_texture.loadFromFile(circle_texture_filename)) {
@@ -48,18 +82,15 @@ public:
         std::cout << this->circle_sprite.getGlobalBounds().width << std::endl;
         std::cout << this->circle_sprite.getGlobalBounds().height << std::endl;
     }
-    [[nodiscard]] sf::Sprite getRhythmCircleSprite() const {
-        return circle_sprite;
-    }
     void updateCircle() {
         if (this->circle_timer.getElapsedTime().asSeconds() > 1.2f) {
             this->resetCircle();
         }
         this->outer_circle.setScale(this->outer_circle.getScale().x * 0.988012f, this->outer_circle.getScale().y * 0.988012f);
     }
-    bool isTimingCorrect() const {
-        return this->circle_timer.getElapsedTime().asSeconds() > 0.8f && this->circle_timer.getElapsedTime().asSeconds() < 1.2f;
-    }
+    // bool isTimingCorrect() const {
+    //     return this->circle_timer.getElapsedTime().asSeconds() > 0.8f && this->circle_timer.getElapsedTime().asSeconds() < 1.2f;
+    // }
 };
 class Player {
 private:
@@ -133,6 +164,14 @@ private:
         }
         this->player_sprite.setRotation(new_angle);
     }
+    void checkOutOfBounds() {
+        //Handles the out-of-bounds issue
+
+        sf::Vector2f playerPos = this->player_sprite.getPosition();
+        float clampedX = std::clamp(playerPos.x, 25.f, static_cast<float>(1920));
+        float clampedY = std::clamp(playerPos.y, 25.f, static_cast<float>(1080));
+        this->player_sprite.setPosition(clampedX, clampedY);
+    }
     bool isPlayerMoving() const {
         return this->player_movement_speed > 50.f;
     }
@@ -140,11 +179,11 @@ public:
     explicit Player(float const player_movement_speed_ = 0.f) : player_movement_speed(player_movement_speed_), breath(100.f) {
         this->initPlayer();
     }
-    [[nodiscard]] sf::Sprite getPlayerSprite() const {
-        return this->player_sprite;
-    }
     [[nodiscard]] float getBreath() const {
         return this->breath;
+    }
+    [[nodiscard]] bool isCollidingWithPoint(const sf::Vector2f point_pos) const {
+        return this->player_sprite.getGlobalBounds().contains(point_pos);
     }
     void draw(sf::RenderTarget& target) const {
         target.draw(this->player_sprite);
@@ -154,13 +193,14 @@ public:
     }
     void updatePlayer(sf::Vector2f location, float deltaTime) {
         // location = mouse position
-        //std::cout << *this;
+
         this->updateBreath();
         if (strokeTimer.getElapsedTime().asSeconds() > 2.f && this->isPlayerMoving()) {
             std::cout << "Two seconds have passed since the last stroke" << "\n";
             // this->strokes_counter = 0;
             this->player_movement_speed = 50.f;
         }
+
         sf::Vector2f current_position = this->player_sprite.getPosition();
         sf::Vector2f direction = location - current_position;
         float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -172,6 +212,7 @@ public:
             // Rotates the player sprite to "look" towards the mouse cursor.
             this->rotatePlayer(normalized_direction);
         }
+        this->checkOutOfBounds();
     }
     bool isAlive() const {
         return this->alive;
@@ -210,9 +251,7 @@ public:
                 }
             }
             this->previous_stroke = this->current_stroke;
-
         }
-
     }
     friend std::ostream& operator<<(std::ostream& os, const Player& player) {
         std::cout << "Player started at location " << player.current_player_position.x << "," << player.current_player_position.y
@@ -286,16 +325,21 @@ public:
 class Game {
 private:
     RhythmCircle rhythm_circle{"textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)};
+    std::vector<Point> points;
     sf::Font font;
     sf::Text breath_text;
     sf::Text breath_value;
     sf::Text game_over;
+    sf::Text score_text;
+    sf::Text score_value;
     sf::RenderWindow* window;
     sf::Event event{};
     sf::Clock clock;
     sf::VideoMode video_mode;
     sf::Vector2f mouse_position_window;
     Player player;
+    int points_counter = 0;
+    int max_points = 5;
     bool end_game = false;
     // std::vector<Minigame> minigames;
     void initFont() {
@@ -316,12 +360,33 @@ private:
         this->window = new sf::RenderWindow(this->video_mode, "SWIM!", sf::Style::Titlebar | sf::Style::Close);
         this->window->setFramerateLimit(60);
     }
+    void initPoints() {
+        for (int i = 0; i < max_points; i++) {
+            points.emplace_back();
+        }
+    }
     void updateMousePosition() {
-        sf::Vector2i pixel_position = sf::Mouse::getPosition(*this->window);
+        const sf::Vector2i pixel_position = sf::Mouse::getPosition(*this->window);
         this->mouse_position_window = this->window->mapPixelToCoords(pixel_position);
     }
     void updateText() {
         this->breath_value.setString(std::to_string(static_cast<int>(this->player.getBreath())));
+        this->score_value.setString(std::to_string(this->points_counter));
+    }
+    void updatePoints() {
+        auto it = points.begin();
+        while (it != points.end()) {
+            if (player.isCollidingWithPoint(it->getPosition())) {
+                it = points.erase(it);
+                it = points.insert(it, Point());
+                ++it;
+                this->points_counter++;
+            }
+            else {
+                ++it;
+            }
+        }
+
     }
     void renderCircle() const {
         this->rhythm_circle.draw(*this->window);
@@ -329,14 +394,22 @@ private:
     void renderText() const {
         this->window->draw(this->breath_text);
         this->window->draw(this->breath_value);
+        this->window->draw(this->score_text);
+        this->window->draw(this->score_value);
     }
     void renderPlayer() const {
         this->player.draw(*this->window);
+    }
+    void renderPoints() const {
+        for (auto& point : this->points) {
+            point.draw(*this->window);
+        }
     }
 public:
     explicit Game() : window(nullptr) {
         this->initWindow();
         this->initFont();
+        this->initPoints();
         sf::Vector2f text_pos{1730.f, 400.f};
         this->initText(breath_text, text_pos, "BREATH:");
         text_pos.y = 440.f;
@@ -344,6 +417,11 @@ public:
         text_pos.x = 860.f;
         text_pos.y = 510.f;
         this->initText(game_over, text_pos, "GAME OVER !");
+        text_pos.x = 30.f;
+        text_pos.y = 30.f;
+        this->initText(score_text, text_pos, "Points: ");
+        text_pos.x += 130.f;
+        this->initText(score_value, text_pos, "");
     }
     ~Game() {
         delete this->window;
@@ -368,6 +446,7 @@ public:
         if (this->player.isAlive()) {
             this->updateMousePosition();
             this->updateText();
+            this->updatePoints();
             this->rhythm_circle.updateCircle();
             this->player.updatePlayer(this->mouse_position_window, this->updateDeltaTime());
         }
@@ -383,6 +462,7 @@ public:
         this->renderPlayer();
         this->renderText();
         this->renderCircle();
+        this->renderPoints();
         this->window->display();
     }
     void pollEvents() {
