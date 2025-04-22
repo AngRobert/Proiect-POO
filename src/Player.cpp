@@ -1,6 +1,6 @@
 #include "Player.h"
 #include <iostream>
-#include <cmath>-
+#include <cmath>
 
 void Player::initPlayer() {
     if (!this->player_texture.loadFromFile("textures/player_texture.png")) {
