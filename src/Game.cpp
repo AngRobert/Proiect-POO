@@ -140,10 +140,10 @@ float Game::updateDeltaTime() {
 //     window->display();
 // }
 
-void Game::loadMinigame() {
-    current_minigame.updateMinigame();
-    current_minigame.renderMinigame(*window);
-}
+// void Game::loadMinigame() {
+//     current_minigame.updateMinigame();
+//     current_minigame.renderMinigame(*window);
+// }
 
 void Game::update() {
     updateMousePosition();
