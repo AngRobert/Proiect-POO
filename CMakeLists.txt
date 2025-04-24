@@ -71,6 +71,10 @@ add_executable(${MAIN_EXECUTABLE_NAME}
     src/Minigame.h
     src/Game.cpp
     src/Game.h
+        src/Button.cpp
+        src/Button.h
+        src/MenuScreen.cpp
+        src/MenuScreen.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

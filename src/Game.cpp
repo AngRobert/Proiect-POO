@@ -5,18 +5,11 @@ Game::Game() : rhythm_circle("textures/rhythmcircle_texture.png", sf::Vector2f(9
     initWindow();
     initFont();
     initPoints();
-    sf::Vector2f text_pos{1730.f, 400.f};
-    initText(breath_text, text_pos, "BREATH:");
-    text_pos.y = 440.f;
-    initText(breath_value, text_pos, "");
-    text_pos.x = 860.f;
-    text_pos.y = 510.f;
-    initText(game_over, text_pos, "GAME OVER !");
-    text_pos.x = 30.f;
-    text_pos.y = 30.f;
-    initText(score_text, text_pos, "Points: ");
-    text_pos.x += 130.f;
-    initText(score_value, text_pos, "");
+    initText(breath_text, "BREATH:", 1730.f, 400.f);
+    initText(breath_value, "", 1730.f, 440.f);
+    initText(game_over, "GAME OVER !", 860.f, 510.f);
+    initText(score_text, "Points: ", 30.f, 30.f);
+    initText(score_value, "", 160.f, 30.f);
     generateMinigameTimer();
 }
 
@@ -30,9 +23,9 @@ void Game::initFont() {
     }
 }
 
-void Game::initText(sf::Text& text, sf::Vector2f text_position, const std::string& text_string) const {
+void Game::initText(sf::Text& text, const std::string& text_string, const float text_pos_x, const float text_pos_y) const {
     text.setFont(font);
-    text.setPosition(text_position);
+    text.setPosition(text_pos_x, text_pos_y);
     text.setCharacterSize(35);
     text.setFillColor(sf::Color::White);
     text.setString(text_string);
@@ -75,6 +68,10 @@ void Game::updatePoints() {
     }
 }
 
+void Game::updateMenuScreen() {
+    this->menu_screen.update(mouse_position_window);
+}
+
 void Game::renderCircle() const {
     rhythm_circle.draw(*window);
 }
@@ -94,6 +91,19 @@ void Game::renderPoints() const {
     for (const auto& point : points) {
         point.draw(*window);
     }
+}
+
+void Game::renderMenuScreen() const {
+    this->menu_screen.render(*this->window);
+}
+
+void Game::renderGame() const {
+    window->clear(sf::Color(3, 177, 252, 255));
+    renderPlayer();
+    renderText();
+    renderCircle();
+    renderPoints();
+    window->display();
 }
 
 void Game::pollGameEvents() {
@@ -144,32 +154,56 @@ void Game::loadMinigame() {
     current_minigame.renderMinigame(*window);
 }
 
+void Game::loadMenuScreen() {
+    if (this->menu_screen.isMenuScreenActive()) {
+        this->updateMenuScreen();
+        this->renderMenuScreen();
+    }
+}
 void Game::update() {
-    if (player.isAlive()) {
-        updateMousePosition();
+    updateMousePosition();
+    if (this->menu_screen.isMenuScreenActive()) {
+        this->minigame_timer_clock.restart();
+        this->updateMenuScreen();
+    }
+    else if (this->minigameTime()) {
+        this->current_minigame.updateMinigame();
+    }
+    else if (player.isAlive()) {
         updateText();
         updatePoints();
         rhythm_circle.updateCircle();
         player.updatePlayer(mouse_position_window, updateDeltaTime());
-    } else {
+    }
+    else {
         end_game = true;
     }
 }
 
 void Game::render() const {
-    window->clear(sf::Color(3, 177, 252, 255));
-    renderPlayer();
-    renderText();
-    renderCircle();
-    renderPoints();
-    window->display();
+    if (this->menu_screen.isMenuScreenActive()) {
+        this->renderMenuScreen();
+    }
+    else if (this->isGameOver()) {
+        this->renderGameOver();
+    }
+    else if (this->minigameTime()) {
+        this->current_minigame.renderMinigame(*this->window);
+    }
+    else {
+        this->renderGame();
+    }
 }
 
 void Game::pollEvents() {
     while (window->pollEvent(event)) {
-        if (current_minigame.isMinigameRunning()) {
+        if (this->menu_screen.isMenuScreenActive()) {
+            this->menu_screen.pollMenuScreenEvents(*this->window, this->event, this->mouse_position_window);
+        }
+        else if (current_minigame.isMinigameRunning()) {
             current_minigame.pollMinigameEvents(*window, event, minigame_timer_clock);
-        } else {
+        }
+        else {
             pollGameEvents();
         }
     }

@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <random>
+
+#include "MenuScreen.h"
 #include "Player.h"
 #include "RhythmCircle.h"
 #include "Minigame.h"
@@ -27,22 +29,26 @@ private:
     sf::Vector2f mouse_position_window;
     Player player;
     Minigame current_minigame;
+    MenuScreen menu_screen;
     int minigame_timer;
     int points_counter;
     int max_points;
     bool end_game;
 
     void initFont();
-    void initText(sf::Text& text, sf::Vector2f text_position, const std::string& text_string) const;
+    void initText(sf::Text& text, const std::string& text_string, float text_pos_x, float text_pos_y) const;
     void initWindow();
     void initPoints();
     void updateMousePosition();
     void updateText();
     void updatePoints();
+    void updateMenuScreen();
     void renderCircle() const;
     void renderText() const;
     void renderPlayer() const;
     void renderPoints() const;
+    void renderMenuScreen() const;
+    void renderGame() const;
     void pollGameEvents();
 
 public:
@@ -54,6 +60,7 @@ public:
     float updateDeltaTime();
     void renderGameOver() const;
     void loadMinigame();
+    void loadMenuScreen();
     void update();
     void render() const;
     void pollEvents();
