@@ -154,12 +154,6 @@ void Game::loadMinigame() {
     current_minigame.renderMinigame(*window);
 }
 
-void Game::loadMenuScreen() {
-    if (this->menu_screen.isMenuScreenActive()) {
-        this->updateMenuScreen();
-        this->renderMenuScreen();
-    }
-}
 void Game::update() {
     updateMousePosition();
     if (this->menu_screen.isMenuScreenActive()) {

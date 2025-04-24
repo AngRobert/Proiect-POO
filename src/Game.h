@@ -60,7 +60,6 @@ public:
     float updateDeltaTime();
     void renderGameOver() const;
     void loadMinigame();
-    void loadMenuScreen();
     void update();
     void render() const;
     void pollEvents();
