@@ -3,16 +3,17 @@
 #include <iostream>
 #include <string>
 
-Button::Button(const std::string& button_string, const sf::Vector2f button_pos, const sf::Vector2f button_size) {
+Button::Button(const std::string& button_string, const sf::Vector2f button_pos, const sf::Vector2f button_size,
+    const sf::Color button_color) {
     this->initButtonFont();
-    this->initButtonShape(button_pos, button_size);
+    this->initButtonShape(button_pos, button_size, button_color);
     this->initButtonText(button_string);
 }
 
-void Button::initButtonShape(const sf::Vector2f button_pos, const sf::Vector2f button_size) {
+void Button::initButtonShape(const sf::Vector2f button_pos, const sf::Vector2f button_size, const sf::Color button_color) {
     this->button_shape.setOutlineColor(sf::Color::Black);
     this->button_shape.setOutlineThickness(1);
-    this->button_shape.setFillColor(sf::Color(140, 182, 250, 255));
+    this->button_shape.setFillColor(button_color);
     this->button_shape.setSize(button_size);
     this->button_shape.setOrigin(this->button_shape.getGlobalBounds().width / 2,
                                     this->button_shape.getGlobalBounds().height / 2);

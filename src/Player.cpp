@@ -3,18 +3,20 @@
 #include <cmath>
 
 void Player::initPlayer() {
-    if (!this->player_texture.loadFromFile("textures/player_texture.png")) {
-        std::cerr << "Failed to load player texture!" << std::endl;
-    }
-    this->player_sprite.setTexture(this->player_texture);
+    this->player_sprite.setTexture(*this->player_texture);
     this->player_sprite.setOrigin(player_sprite.getGlobalBounds().width / 2.f, 0.f);
     this->current_player_position.x = 500.f;
     this->current_player_position.y = 500.f;
     this->player_sprite.setPosition(this->current_player_position.x, this->current_player_position.y);
-    sf::Vector2u const original_player_texture_size = player_texture.getSize();
+    sf::Vector2u const original_player_texture_size = player_texture->getSize();
     float const scaleX = 100 / static_cast<float>(original_player_texture_size.x);
     float const scaleY = 300 / static_cast<float>(original_player_texture_size.y);
     player_sprite.setScale(scaleX, scaleY);
+}
+
+void Player::initPlayerTexture() {
+    this->player_texture = std::make_shared<sf::Texture>();
+    player_texture->loadFromFile("textures/player_texture.png");
 }
 
 void Player::movePlayer(sf::Vector2f const normalized_direction, float deltaTime) {
@@ -44,7 +46,7 @@ void Player::rotatePlayer(sf::Vector2f const normalized_direction) {
     }
 
     constexpr int num_directions = 32;
-    float angle_step = 360.f / num_directions;
+    constexpr float angle_step = 360.f / num_directions;
     float new_angle = std::round(angle_deg / angle_step) * angle_step;
     if (new_angle >= 360.f) {
         new_angle -= 360;
@@ -66,6 +68,7 @@ bool Player::isPlayerMoving() const {
 }
 
 Player::Player(float player_movement_speed_) : player_movement_speed(player_movement_speed_), breath(100.f) {
+    this->initPlayerTexture();
     this->initPlayer();
 }
 
@@ -148,6 +151,22 @@ void Player::doStroke(sf::Keyboard::Key key) {
         }
         this->previous_stroke = this->current_stroke;
     }
+}
+
+Player & Player::operator=(const Player &other) {
+    this->player_texture = other.player_texture;
+    this->player_sprite = other.player_sprite;
+    this->current_player_position = other.current_player_position;
+    this->strokeTimer = other.strokeTimer;
+    this->previous_stroke = other.previous_stroke;
+    this->current_stroke = other.current_stroke;
+    this->strokes_counter = other.strokes_counter;
+    this->fatigue_counter = other.fatigue_counter;
+    this->alive = other.alive;
+    this->next_stroke_is_breath = other.next_stroke_is_breath;
+    this->player_movement_speed = other.player_movement_speed;
+    this->breath = other.breath;
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Player& player) {

@@ -8,8 +8,8 @@ class MenuScreen {
 private:
     sf::Font menu_font;
     sf::Text title_text;
-    Button play_button{"Play!", sf::Vector2f(960.f, 400.f), sf::Vector2f(500.f, 100.f)};
-    Button quit_button{"Quit :*(", sf::Vector2f(960.f, 550.f), sf::Vector2f(500.f, 100.f)};
+    Button play_button{"Play!", sf::Vector2f(960.f, 400.f), sf::Vector2f(500.f, 100.f), sf::Color(140, 182, 250, 255)};
+    Button quit_button{"Quit :*(", sf::Vector2f(960.f, 550.f), sf::Vector2f(500.f, 100.f), sf::Color(140, 182, 250, 255)};
     bool active;
 
     void initMenuScreenFont();

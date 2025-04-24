@@ -11,18 +11,20 @@ int main() {
         //Update
         //Render
         game.pollEvents();
-        // game.update();
-        // game.render();
-        if (game.isGameOver()) {
-            game.renderGameOver();
-        }
-        else if (game.minigameTime()) {
-            game.loadMinigame();
-        }
-        else {
-            game.update();
-            game.render();
-        }
+
+        game.update();
+
+        game.render();
+        // if (game.isGameOver()) {
+        //     game.renderGameOver();
+        // }
+        // else if (game.minigameTime()) {
+        //     game.loadMinigame();
+        // }
+        // else {
+        //     game.update();
+        //     game.render();
+        // }
     }
     return 0;
 }

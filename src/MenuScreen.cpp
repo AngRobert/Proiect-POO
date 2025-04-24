@@ -43,8 +43,6 @@ void MenuScreen::pollMenuScreenEvents(sf::RenderWindow& window, const sf::Event&
                     this->active = false;
                 }
                 else if (this->quit_button.isHovered(mouse_pos)) {
-
-
                     window.close();
                 }
             }

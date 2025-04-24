@@ -1,13 +1,12 @@
 #include "Game.h"
 #include <iostream>
 
-Game::Game() : rhythm_circle("textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)), window(nullptr), event(), minigame_timer(1000), points_counter(0), max_points(5), end_game(false) {
+Game::Game() : rhythm_circle("textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)), window(nullptr), event(), minigame_timer(1000), points_counter(0), max_points(5) {
     initWindow();
     initFont();
     initPoints();
     initText(breath_text, "BREATH:", 1730.f, 400.f);
     initText(breath_value, "", 1730.f, 440.f);
-    initText(game_over, "GAME OVER !", 860.f, 510.f);
     initText(score_text, "Points: ", 30.f, 30.f);
     initText(score_value, "", 160.f, 30.f);
     generateMinigameTimer();
@@ -24,7 +23,7 @@ void Game::initFont() {
 }
 
 void Game::initText(sf::Text& text, const std::string& text_string, const float text_pos_x, const float text_pos_y) const {
-    text.setFont(font);
+    text.setFont(this->font);
     text.setPosition(text_pos_x, text_pos_y);
     text.setCharacterSize(35);
     text.setFillColor(sf::Color::White);
@@ -68,10 +67,6 @@ void Game::updatePoints() {
     }
 }
 
-void Game::updateMenuScreen() {
-    this->menu_screen.update(mouse_position_window);
-}
-
 void Game::renderCircle() const {
     rhythm_circle.draw(*window);
 }
@@ -93,10 +88,6 @@ void Game::renderPoints() const {
     }
 }
 
-void Game::renderMenuScreen() const {
-    this->menu_screen.render(*this->window);
-}
-
 void Game::renderGame() const {
     window->clear(sf::Color(3, 177, 252, 255));
     renderPlayer();
@@ -114,7 +105,7 @@ void Game::pollGameEvents() {
         case sf::Event::KeyPressed:
             if (sf::Keyboard::Escape == event.key.code) {
                 window->close();
-            } else if (!isGameOver() && !minigameTime()) {
+            } else if (!this->game_over_screen.isGameOver() && !minigameTime()) {
                 if (sf::Keyboard::W == event.key.code) {
                     player.doBreath();
                 } else if (sf::Keyboard::Q == event.key.code || sf::Keyboard::E == event.key.code) {
@@ -131,9 +122,9 @@ bool Game::isRunning() const {
     return window->isOpen();
 }
 
-bool Game::isGameOver() const {
-    return end_game;
-}
+// bool Game::isGameOver() const {
+//     return end_game;
+// }
 
 bool Game::minigameTime() const {
     return minigame_timer_clock.getElapsedTime().asSeconds() > static_cast<float>(minigame_timer);
@@ -143,11 +134,11 @@ float Game::updateDeltaTime() {
     return clock.restart().asSeconds();
 }
 
-void Game::renderGameOver() const {
-    window->clear(sf::Color(255, 0, 0, 255));
-    window->draw(game_over);
-    window->display();
-}
+// void Game::renderGameOver() const {
+//     window->clear(sf::Color(255, 0, 0, 255));
+//     window->draw(game_over);
+//     window->display();
+// }
 
 void Game::loadMinigame() {
     current_minigame.updateMinigame();
@@ -158,7 +149,7 @@ void Game::update() {
     updateMousePosition();
     if (this->menu_screen.isMenuScreenActive()) {
         this->minigame_timer_clock.restart();
-        this->updateMenuScreen();
+        this->menu_screen.update(this->mouse_position_window);
     }
     else if (this->minigameTime()) {
         this->current_minigame.updateMinigame();
@@ -170,16 +161,18 @@ void Game::update() {
         player.updatePlayer(mouse_position_window, updateDeltaTime());
     }
     else {
-        end_game = true;
+        this->points_counter = 0; // AND OTHER PLAYER RELATED INFO that doesn't get reset in the player constructor? ???
+        this->minigame_timer_clock.restart();
+        this->game_over_screen.updateGameOver(this->mouse_position_window);
     }
 }
 
 void Game::render() const {
     if (this->menu_screen.isMenuScreenActive()) {
-        this->renderMenuScreen();
+        this->menu_screen.render(*this->window);
     }
-    else if (this->isGameOver()) {
-        this->renderGameOver();
+    else if (this->game_over_screen.isGameOver()) {
+        this->game_over_screen.renderGameOver(*this->window);
     }
     else if (this->minigameTime()) {
         this->current_minigame.renderMinigame(*this->window);
@@ -193,6 +186,9 @@ void Game::pollEvents() {
     while (window->pollEvent(event)) {
         if (this->menu_screen.isMenuScreenActive()) {
             this->menu_screen.pollMenuScreenEvents(*this->window, this->event, this->mouse_position_window);
+        }
+        else if (this->game_over_screen.isGameOver()) {
+            this->game_over_screen.pollGameOverEvents(*this->window, this->event, this->mouse_position_window, this->player);
         }
         else if (current_minigame.isMinigameRunning()) {
             current_minigame.pollMinigameEvents(*window, event, minigame_timer_clock);
