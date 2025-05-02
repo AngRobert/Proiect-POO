@@ -122,10 +122,6 @@ bool Game::isRunning() const {
     return window->isOpen();
 }
 
-// bool Game::isGameOver() const {
-//     return end_game;
-// }
-
 bool Game::minigameTime() const {
     return minigame_timer_clock.getElapsedTime().asSeconds() > static_cast<float>(minigame_timer);
 }
@@ -133,17 +129,6 @@ bool Game::minigameTime() const {
 float Game::updateDeltaTime() {
     return clock.restart().asSeconds();
 }
-
-// void Game::renderGameOver() const {
-//     window->clear(sf::Color(255, 0, 0, 255));
-//     window->draw(game_over);
-//     window->display();
-// }
-
-// void Game::loadMinigame() {
-//     current_minigame.updateMinigame();
-//     current_minigame.renderMinigame(*window);
-// }
 
 void Game::update() {
     updateMousePosition();
@@ -202,6 +187,6 @@ void Game::pollEvents() {
 void Game::generateMinigameTimer() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(10, 15);
+    std::uniform_int_distribution<> dist(3, 4);
     minigame_timer = dist(gen);
 }

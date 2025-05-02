@@ -19,7 +19,6 @@ private:
     sf::Font font;
     sf::Text breath_text;
     sf::Text breath_value;
-    // sf::Text game_over;
     sf::Text score_text;
     sf::Text score_value;
     sf::RenderWindow* window;
@@ -35,7 +34,6 @@ private:
     int minigame_timer;
     int points_counter;
     int max_points;
-    // bool end_game;
 
     void initFont();
     void initText(sf::Text& text, const std::string& text_string, float text_pos_x, float text_pos_y) const;
@@ -44,12 +42,10 @@ private:
     void updateMousePosition();
     void updateText();
     void updatePoints();
-    // void updateMenuScreen();
     void renderCircle() const;
     void renderText() const;
     void renderPlayer() const;
     void renderPoints() const;
-    // void renderMenuScreen() const;
     void renderGame() const;
     void pollGameEvents();
 
@@ -57,11 +53,8 @@ public:
     Game();
     ~Game();
     [[nodiscard]] bool isRunning() const;
-    // [[nodiscard]] bool isGameOver() const;
     [[nodiscard]] bool minigameTime() const;
     float updateDeltaTime();
-    // void renderGameOver() const;
-    void loadMinigame();
     void update();
     void render() const;
     void pollEvents();

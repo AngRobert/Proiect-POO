@@ -14,17 +14,16 @@ void Enemy::generateEnemyPosition() {
 }
 
 void Enemy::setEnemySize(float const desiredWidth, float const desiredHeight) {
-    sf::Vector2u const original_enemy_texture_size = enemy_texture.getSize();
+    sf::Vector2u const original_enemy_texture_size = enemy_texture->getSize();
     float const scaleX = desiredWidth / static_cast<float>(original_enemy_texture_size.x);
     float const scaleY = desiredHeight / static_cast<float>(original_enemy_texture_size.y);
     enemy_sprite.setScale(scaleX, scaleY);
 }
 
 void Enemy::initEnemy() {
-    if (!this->enemy_texture.loadFromFile("textures/fish_texture.png")) {
-        std::cerr << "Failed to load texture" << std::endl;
-    }
-    enemy_sprite.setTexture(enemy_texture);
+    this->enemy_texture = std::make_shared<sf::Texture>();
+    this->enemy_texture->loadFromFile("textures/fish_texture.png");
+    enemy_sprite.setTexture(*enemy_texture);
     this->generateEnemyPosition();
     setEnemySize(100.f, 50.f);
 }

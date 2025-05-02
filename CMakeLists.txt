@@ -77,6 +77,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/MenuScreen.h
         src/GameOverScreen.cpp
         src/GameOverScreen.h
+        src/MinigamePlayer.cpp
+        src/MinigamePlayer.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

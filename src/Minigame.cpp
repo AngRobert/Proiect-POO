@@ -5,19 +5,17 @@ Minigame::Minigame(int max_enemies_, int minigame_difficulty_, const std::vector
     : max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemies(enemies_) {
     initMinigameFont();
     initMinigameText();
+    initMinigameArena();
 }
 
 void Minigame::initMinigameText() {
-    this->minigame_placeholder_text.setPosition(sf::Vector2f(500.f, 500.f));
-    this->minigame_placeholder_text.setFont(minigame_font);
-    this->minigame_placeholder_text.setCharacterSize(30);
-    this->minigame_placeholder_text.setString(
-        "YOU ARE NOW IN A MINIGAME!!!!!!!!! \n"
-        "this is a big WIP.. press space to exit \n"
-        "or B to spawn an enemy at a random location. \n"
-        "Have great fun!"
-    );
-    this->minigame_placeholder_text.setFillColor(sf::Color::White);
+    this->minigame_text.setFont(minigame_font);
+    this->minigame_text.setCharacterSize(60);
+    this->minigame_text.setString("DODGE!");
+    this->minigame_text.setFillColor(sf::Color::White);
+    this->minigame_text.setOrigin(this->minigame_text.getGlobalBounds().width / 2,
+                                    this->minigame_text.getGlobalBounds().height / 2);
+    this->minigame_text.setPosition(sf::Vector2f(960.f, 100.f));
 }
 
 void Minigame::initMinigameFont() {
@@ -26,10 +24,43 @@ void Minigame::initMinigameFont() {
     }
 }
 
+void Minigame::initMinigameArena() {
+    this->minigame_arena.setOutlineColor(sf::Color::White);
+    this->minigame_arena.setOutlineThickness(5);
+    this->minigame_arena.setFillColor(sf::Color::Black);
+    this->minigame_arena.setSize(sf::Vector2f(1000.f, 600.f));
+    this->minigame_arena.setOrigin(this->minigame_arena.getSize().x / 2,
+                                    this->minigame_arena.getSize().y / 2);
+    this->minigame_arena.setPosition(sf::Vector2f(960.f, 600.f));
+}
+
 void Minigame::renderEnemies(sf::RenderTarget& target) const {
     for (const auto& enemy : enemies) {
         enemy.draw(target);
     }
+}
+
+float Minigame::updateMinigameDeltaTime() {
+    return this->minigame_delta_time.restart().asSeconds();
+}
+
+void Minigame::handleMovementInput(const float deltaTime) {
+    sf::Vector2f direction(0.f, 0.f);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+        direction.y -= 1;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+        direction.y += 1;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+        direction.x -= 1;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+        direction.x += 1;
+    }
+
+    this->minigame_player.updateMinigamePlayer(direction, deltaTime);
 }
 
 bool Minigame::isMinigameRunning() const {
@@ -37,13 +68,18 @@ bool Minigame::isMinigameRunning() const {
 }
 
 void Minigame::updateMinigame() {
+    // this->updateMinigameDeltaTime();
     this->minigame_active = true;
+    this->handleMovementInput(this->updateMinigameDeltaTime());
+    // this->minigame_player.checkMinigamePlayerOutOfBounds(this->minigame_arena.getPosition());
 }
 
 void Minigame::renderMinigame(sf::RenderWindow& target) const {
     target.clear(sf::Color::Black);
-    target.draw(minigame_placeholder_text);
-    renderEnemies(target);
+    target.draw(minigame_text);
+    target.draw(minigame_arena);
+    this->minigame_player.draw(target);
+    this->renderEnemies(target);
     target.display();
 }
 
@@ -53,15 +89,16 @@ void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& eve
             window.close();
             break;
         case sf::Event::KeyPressed:
-            if (sf::Keyboard::Escape == event.key.code) {
-                window.close();
-            }
-            if (sf::Keyboard::Space == event.key.code) {
-                minigame_active = false;
+            switch (event.key.code) {
+                case sf::Keyboard::Escape:
+                    window.close();
+                break;
+                case sf::Keyboard::Space:
+                    minigame_active = false;
                 minigame_timer.restart();
-            }
-            else if (sf::Keyboard::B == event.key.code) {
-                enemies.emplace_back();
+                break;
+                default:
+                    break;
             }
             break;
         default:

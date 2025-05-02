@@ -57,9 +57,9 @@ void Player::rotatePlayer(sf::Vector2f const normalized_direction) {
 void Player::checkOutOfBounds() {
     //Handles the out-of-bounds issue
 
-    sf::Vector2f playerPos = this->player_sprite.getPosition();
-    float clampedX = std::clamp(playerPos.x, 25.f, static_cast<float>(1920));
-    float clampedY = std::clamp(playerPos.y, 25.f, static_cast<float>(1080));
+    const sf::Vector2f playerPos = this->player_sprite.getPosition();
+    const float clampedX = std::clamp(playerPos.x, 25.f, 1920.f);
+    const float clampedY = std::clamp(playerPos.y, 25.f, 1080.f);
     this->player_sprite.setPosition(clampedX, clampedY);
 }
 
@@ -67,7 +67,7 @@ bool Player::isPlayerMoving() const {
     return this->player_movement_speed > 50.f;
 }
 
-Player::Player(float player_movement_speed_) : player_movement_speed(player_movement_speed_), breath(100.f) {
+Player::Player(const float player_movement_speed_) : player_movement_speed(player_movement_speed_), breath(100.f) {
     this->initPlayerTexture();
     this->initPlayer();
 }
@@ -98,12 +98,12 @@ void Player::updatePlayer(sf::Vector2f location, float deltaTime) {
         this->player_movement_speed = 50.f;
     }
 
-    sf::Vector2f current_position = this->player_sprite.getPosition();
-    sf::Vector2f direction = location - current_position;
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    const sf::Vector2f current_position = this->player_sprite.getPosition();
+    const sf::Vector2f direction = location - current_position;
+    const float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
     if (distance > 10.0f) {
-        sf::Vector2f normalized_direction = direction / distance;
+        const sf::Vector2f normalized_direction = direction / distance;
         // Moves the player towards the mouse cursor.
         this->movePlayer(normalized_direction, deltaTime);
         // Rotates the player sprite to "look" towards the mouse cursor.
