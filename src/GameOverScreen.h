@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "Button.h"
 #include "Player.h"
+#include "Minigame.h"
 
 class GameOverScreen {
 private:
@@ -20,7 +21,7 @@ public:
     explicit GameOverScreen();
     void renderGameOver(sf::RenderWindow& target) const;
     void updateGameOver(sf::Vector2f mouse_position);
-    void pollGameOverEvents(sf::RenderWindow &window, const sf::Event &event, sf::Vector2f mouse_pos, Player& player);
+    void pollGameOverEvents(sf::RenderWindow &window, const sf::Event &event, sf::Vector2f mouse_pos, Player& player, Minigame& minigame);
     [[nodiscard]] bool isGameOver() const;
 
 };

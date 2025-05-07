@@ -8,19 +8,28 @@ MinigamePlayer::MinigamePlayer() : minigame_player_speed(250.f) {
     this->initMinigamePlayerSprite();
 }
 
+bool MinigamePlayer::isPlayerHit(const sf::FloatRect enemy_bounds) const {
+    return this->minigame_player_sprite.getGlobalBounds().intersects(enemy_bounds);
+}
+
+void MinigamePlayer::reset() {
+    this->minigame_player_sprite.setPosition(960.f, 700.f);
+}
+
 void MinigamePlayer::updateMinigamePlayer(const sf::Vector2f& direction, const float deltaTime) {
     this->moveMinigamePlayer(direction, deltaTime);
     this->checkMinigamePlayerOutOfBounds();
 }
 
 void MinigamePlayer::initMinigamePlayerTexture() {
-    if (!this->minigame_player_texture.loadFromFile("textures/minigame_player_texture.png")) {
+    minigame_player_texture = std::make_shared<sf::Texture>();
+    if (!this->minigame_player_texture->loadFromFile("textures/minigame_player_texture.png")) {
         std::cerr << "Error loading texture" << std::endl;
     }
 }
 
 void MinigamePlayer::initMinigamePlayerSprite() {
-    this->minigame_player_sprite.setTexture(this->minigame_player_texture);
+    this->minigame_player_sprite.setTexture(*this->minigame_player_texture);
     this->minigame_player_sprite.setOrigin(this->minigame_player_sprite.getGlobalBounds().width / 2,
                                             this->minigame_player_sprite.getGlobalBounds().height / 2);
     this->minigame_player_sprite.setPosition(sf::Vector2f(960.f, 700.f));

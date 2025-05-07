@@ -35,7 +35,7 @@ void GameOverScreen::updateGameOver(const sf::Vector2f mouse_position) {
     this->play_again_button.updateButton(mouse_position);
 }
 
-void GameOverScreen::pollGameOverEvents(sf::RenderWindow &window, const sf::Event &event, const sf::Vector2f mouse_pos, Player& player) {
+void GameOverScreen::pollGameOverEvents(sf::RenderWindow &window, const sf::Event &event, const sf::Vector2f mouse_pos, Player& player, Minigame& minigame) {
     switch (event.type) {
         case sf::Event::Closed:
             window.close();
@@ -49,6 +49,10 @@ void GameOverScreen::pollGameOverEvents(sf::RenderWindow &window, const sf::Even
             if (play_again_button.isHovered(mouse_pos) && event.mouseButton.button == sf::Mouse::Left) {
                 const Player temp_player;
                 player = temp_player;
+
+                const Minigame temp_minigame;
+                minigame = temp_minigame;
+
                 this->game_over_active = false;
             }
         default:

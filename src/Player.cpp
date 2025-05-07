@@ -116,7 +116,7 @@ bool Player::isAlive() const {
     return this->alive;
 }
 
-void Player::doStroke(sf::Keyboard::Key key) {
+void Player::doStroke(const sf::Keyboard::Key key) {
     if (this->strokeTimer.getElapsedTime().asSeconds() >= 1.0f) {       // IF THE STROKE IS "VALID" (NOT SPAMMED)
         this->strokeTimer.restart();
 

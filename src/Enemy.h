@@ -2,26 +2,29 @@
 #define ENEMY_H
 
 #include <SFML/Graphics.hpp> // For sf::Texture, sf::Sprite
-#include <string>             // For std::string
 #include <memory>
 
 class Enemy {
 private:
+    virtual void generateEnemyPosition() = 0;
+    virtual void moveEnemy() = 0;
+
+protected:
     std::shared_ptr<sf::Texture> enemy_texture;
     sf::Sprite enemy_sprite;
-    int enemy_difficulty;
-    int enemy_speed;
-    int enemy_size;
-    std::string enemy_type;
-
-    void generateEnemyPosition();
-    void setEnemySize(float desiredWidth, float desiredHeight);
-    void initEnemy();
+    sf::Vector2f enemy_size;
+    float enemy_speed;
 
 public:
-    explicit Enemy(int difficulty_ = 1, int speed_ = 0, int size_ = 1, std::string enemy_type_ = "null");
+    explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0));
     Enemy(const Enemy& other_enemy);
-    ~Enemy();
+    virtual ~Enemy();
+    virtual Enemy* clone() const = 0;
+    [[nodiscard]] sf::FloatRect getEnemyBounds() const;
+
+    void spawn();
+    void setEnemySize(sf::Vector2f desiredSize);
+    void updateEnemy();
 
     Enemy& operator=(const Enemy& other_enemy);
     friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy);

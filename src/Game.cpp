@@ -136,10 +136,10 @@ void Game::update() {
         this->minigame_timer_clock.restart();
         this->menu_screen.update(this->mouse_position_window);
     }
-    else if (this->minigameTime()) {
-        this->current_minigame.updateMinigame();
+    else if (this->minigameTime() && !current_minigame.isMinigameFailed()) {
+        this->current_minigame.updateMinigame(this->minigame_timer_clock);
     }
-    else if (player.isAlive()) {
+    else if (player.isAlive() && !current_minigame.isMinigameFailed()) {
         updateText();
         updatePoints();
         rhythm_circle.updateCircle();
@@ -156,7 +156,7 @@ void Game::render() const {
     if (this->menu_screen.isMenuScreenActive()) {
         this->menu_screen.render(*this->window);
     }
-    else if (this->game_over_screen.isGameOver()) {
+    else if (this->game_over_screen.isGameOver() || this->current_minigame.isMinigameFailed()) {
         this->game_over_screen.renderGameOver(*this->window);
     }
     else if (this->minigameTime()) {
@@ -173,7 +173,7 @@ void Game::pollEvents() {
             this->menu_screen.pollMenuScreenEvents(*this->window, this->event, this->mouse_position_window);
         }
         else if (this->game_over_screen.isGameOver()) {
-            this->game_over_screen.pollGameOverEvents(*this->window, this->event, this->mouse_position_window, this->player);
+            this->game_over_screen.pollGameOverEvents(*this->window, this->event, this->mouse_position_window, this->player, this->current_minigame);
         }
         else if (current_minigame.isMinigameRunning()) {
             current_minigame.pollMinigameEvents(*window, event, minigame_timer_clock);
