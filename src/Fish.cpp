@@ -6,10 +6,10 @@ void Fish::generateEnemyPosition() {
     std::random_device random_device;
     std::mt19937 generator(random_device());
     std::uniform_int_distribution<int> distrib_fish_Y(this->fish_y_range.x, this->fish_y_range.y);
-    std::uniform_int_distribution<int> fish_pos(0, 1);
+    std::uniform_int_distribution<int> fish_position(0, 1);
 
 
-    auto X = static_cast<float>(fish_pos(generator));
+    auto X = static_cast<float>(fish_position(generator));
     const auto Y = static_cast<float>(distrib_fish_Y(generator));
 
     // 375 = on the left side of the minigame arena, 1545 = right

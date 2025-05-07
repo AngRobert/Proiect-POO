@@ -132,14 +132,16 @@ void Minigame::handleMovementInput(const float deltaTime) {
 }
 
 void Minigame::handleEnemySpawns() {
-    if (minigame_end_timeout_clock.getElapsedTime().asSeconds() > 5.f && this->enemies.size() == this->max_enemies) {
+    const std::size_t maxEnemies = static_cast<std::size_t>(this->max_enemies);
+
+    if (minigame_end_timeout_clock.getElapsedTime().asSeconds() > 5.f && this->enemies.size() == maxEnemies) {
         this->minigame_success = true;
     }
-    if (this->enemy_spawn_clock.getElapsedTime().asSeconds() > this->enemy_spawn_timer && this->enemies.size() < this->max_enemies - 1) {
+    if (this->enemy_spawn_clock.getElapsedTime().asSeconds() > this->enemy_spawn_timer && this->enemies.size() < maxEnemies - 1) {
         this->enemy_spawn_clock.restart();
         this->generateEnemy();
     }
-    else if (this->enemies.size() == this->max_enemies - 1) {
+    else if (this->enemies.size() == maxEnemies - 1) {
         minigame_end_timeout_clock.restart();
         this->generateEnemy();
     }

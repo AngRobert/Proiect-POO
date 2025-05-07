@@ -12,8 +12,8 @@ private:
 protected:
     std::shared_ptr<sf::Texture> enemy_texture;
     sf::Sprite enemy_sprite;
-    sf::Vector2f enemy_size;
     float enemy_speed;
+    sf::Vector2f enemy_size;
 
 public:
     explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0));
