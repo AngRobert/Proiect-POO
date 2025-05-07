@@ -8,7 +8,12 @@ MinigamePlayer::MinigamePlayer() : minigame_player_speed(250.f) {
     this->initMinigamePlayerSprite();
 }
 
-bool MinigamePlayer::isPlayerHit(const sf::FloatRect enemy_bounds) const {
+bool MinigamePlayer::isPlayerHit(sf::FloatRect enemy_bounds) const {
+    enemy_bounds.top += 20.f;
+    enemy_bounds.left += 20.f;
+    enemy_bounds.width -= 40.f;
+    enemy_bounds.height -= 40.f;
+
     return this->minigame_player_sprite.getGlobalBounds().intersects(enemy_bounds);
 }
 
@@ -33,21 +38,21 @@ void MinigamePlayer::initMinigamePlayerSprite() {
     this->minigame_player_sprite.setOrigin(this->minigame_player_sprite.getGlobalBounds().width / 2,
                                             this->minigame_player_sprite.getGlobalBounds().height / 2);
     this->minigame_player_sprite.setPosition(sf::Vector2f(960.f, 700.f));
-    this->minigame_player_sprite.setScale(0.5f, 0.5f);
+    this->minigame_player_sprite.setScale(0.45f, 0.45f);
 }
 
 void MinigamePlayer::moveMinigamePlayer(const sf::Vector2f& direction, const float deltaTime) {
     if (direction.x != 0 || direction.y != 0) {
-        const sf::Vector2f normalized_direction = this->normalize(direction);
+        const sf::Vector2f normalized_direction = normalize(direction);
         minigame_player_sprite.move(normalized_direction * minigame_player_speed * deltaTime);
     }
 }
 
 sf::Vector2f MinigamePlayer::normalize(const sf::Vector2f &direction) {
     if (const float length = std::sqrt(direction.x * direction.x + direction.y * direction.y); length != 0) {
-        return sf::Vector2f(direction.x / length, direction.y / length);
+        return {direction.x / length, direction.y / length};
     }
-    return sf::Vector2f(0.f, 0.f);
+    return {0.f, 0.f};
 }
 
 void MinigamePlayer::draw(sf::RenderWindow &target) const {
