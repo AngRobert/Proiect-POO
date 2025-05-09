@@ -28,16 +28,16 @@ void Fish::generateEnemyPosition() {
     this->enemy_sprite.setPosition(X, Y);
 }
 
-void Fish::moveEnemy(float deltaTime) {
+void Fish::moveEnemy(const float deltaTime) {
     if (this->fish_pos == "left") {
-        this->enemy_sprite.move(enemy_speed, 0.f);
+        this->enemy_sprite.move(enemy_speed * deltaTime, 0.f);
     }
     else {
-        this->enemy_sprite.move(-enemy_speed, 0.f);
+        this->enemy_sprite.move(-enemy_speed * deltaTime, 0.f);
     }
 }
 
-Fish::Fish() : Enemy(7.f, sf::Vector2f(150.f, 75.f)), fish_y_range(sf::Vector2i(35, 85)), fish_pos("") {
+Fish::Fish() : Enemy(350.f, sf::Vector2f(150.f, 75.f)), fish_y_range(sf::Vector2i(35, 85)), fish_pos("") {
     this->enemy_texture = std::make_shared<sf::Texture>();
     this->enemy_texture->loadFromFile("textures/fish_texture.png");
     this->enemy_sprite.setTexture(*this->enemy_texture);
