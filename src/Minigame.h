@@ -3,38 +3,41 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "Fish.h"
+// #include "Fish.h"
+#include "Frog.h"
 #include "MinigamePlayer.h"
 
 class Minigame {
 private:
     int max_enemies;
     int minigame_difficulty;
+    int frog_counter = 0;
     float enemy_spawn_timer;
     sf::Clock enemy_spawn_clock;
-    sf::Clock minigame_end_timeout_clock;
     sf::RectangleShape minigame_arena;
     bool minigame_active = false;
     bool minigame_failed = false;
     bool minigame_success = false;
     std::vector<std::unique_ptr<Enemy>> enemies;
     MinigamePlayer minigame_player;
-    sf::Clock minigame_delta_time;
+    sf::Clock minigame_delta_clock;
+    float minigame_delta_time;
     sf::Font minigame_font;
     sf::Text minigame_text;
 
     void initMinigameText();
     void initMinigameFont();
     void initMinigameArena();
-    void updateEnemies();
+    void updateEnemies(float deltaTime);
     void renderEnemies(sf::RenderTarget& target) const;
     float updateMinigameDeltaTime();
     void handleMovementInput(float deltaTime);
     void handleEnemySpawns();
     void handleMinigameEnd(sf::Clock& minigame_timer);
+    bool hasEnemyInsideArena() const;
 
 public:
-    explicit Minigame(int max_enemies_ = 10, int minigame_difficulty_ = 1, float enemy_spawn_timer_ = 0.5f);
+    explicit Minigame(int max_enemies_ = 12, int minigame_difficulty_ = 1, float enemy_spawn_timer_ = 0.25f);
     Minigame(const Minigame& other);
     Minigame& operator=(const Minigame& other);
     ~Minigame() = default;

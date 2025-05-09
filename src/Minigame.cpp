@@ -1,8 +1,11 @@
 #include "Minigame.h"
+#include "Fish.h"
 #include <iostream>
+#include <random>
+
 
 Minigame::Minigame(const int max_enemies_, const int minigame_difficulty_, const float enemy_spawn_timer_)
-    : max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemy_spawn_timer(enemy_spawn_timer_) {
+    : max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemy_spawn_timer(enemy_spawn_timer_), minigame_delta_time(0.f) {
     this->initMinigameFont();
     this->initMinigameText();
     this->initMinigameArena();
@@ -75,9 +78,9 @@ void Minigame::initMinigameArena() {
     this->minigame_arena.setPosition(sf::Vector2f(960.f, 600.f));
 }
 
-void Minigame::updateEnemies() {
+void Minigame::updateEnemies(float deltaTime) {
     for (const auto& enemy : enemies) {
-        enemy->updateEnemy();
+        enemy->updateEnemy(deltaTime);
         if (this->minigame_player.isPlayerHit(enemy->getEnemyBounds())) {
             minigame_failed = true;
         }
@@ -86,7 +89,7 @@ void Minigame::updateEnemies() {
 
 void Minigame::renderEnemies(sf::RenderTarget& target) const {
     sf::RenderTexture enemyLayer;
-    enemyLayer.create(minigame_arena.getSize().x, minigame_arena.getSize().y);
+    enemyLayer.create(static_cast<unsigned int>(minigame_arena.getSize().x), static_cast<unsigned int>(minigame_arena.getSize().y));
     enemyLayer.clear(sf::Color::Transparent);
 
     const sf::View enemyView(sf::FloatRect(
@@ -109,7 +112,7 @@ void Minigame::renderEnemies(sf::RenderTarget& target) const {
 }
 
 float Minigame::updateMinigameDeltaTime() {
-    return this->minigame_delta_time.restart().asSeconds();
+    return this->minigame_delta_clock.restart().asSeconds();
 }
 
 void Minigame::handleMovementInput(const float deltaTime) {
@@ -132,17 +135,15 @@ void Minigame::handleMovementInput(const float deltaTime) {
 }
 
 void Minigame::handleEnemySpawns() {
-    const std::size_t maxEnemies = static_cast<std::size_t>(this->max_enemies);
-
-    if (minigame_end_timeout_clock.getElapsedTime().asSeconds() > 5.f && this->enemies.size() == maxEnemies) {
+    const auto maxEnemies = static_cast<std::size_t>(this->max_enemies);
+    if (!this->hasEnemyInsideArena() && this->enemies.size() == maxEnemies) {
         this->minigame_success = true;
+        if (this->minigame_difficulty < 3) {
+            this->minigame_difficulty ++;
+        }
     }
-    if (this->enemy_spawn_clock.getElapsedTime().asSeconds() > this->enemy_spawn_timer && this->enemies.size() < maxEnemies - 1) {
+    if (this->enemy_spawn_clock.getElapsedTime().asSeconds() > this->enemy_spawn_timer && this->enemies.size() < maxEnemies) {
         this->enemy_spawn_clock.restart();
-        this->generateEnemy();
-    }
-    else if (this->enemies.size() == maxEnemies - 1) {
-        minigame_end_timeout_clock.restart();
         this->generateEnemy();
     }
 }
@@ -151,12 +152,22 @@ void Minigame::handleMinigameEnd(sf::Clock& minigame_timer) {
     if (minigame_success) {
         minigame_active = false;
         minigame_success = false;
+        this->frog_counter = 0;
         this->enemies.clear();
         this->minigame_player.reset();
         minigame_timer.restart();
     }
 }
 
+bool Minigame::hasEnemyInsideArena() const {
+    const sf::FloatRect arenaBounds = minigame_arena.getGlobalBounds();
+    for (const auto& enemy : enemies) {
+        if (arenaBounds.intersects(enemy->getEnemyBounds())) {
+            return true;
+        }
+    }
+    return false;
+}
 bool Minigame::isMinigameRunning() const {
     return this->minigame_active;
 }
@@ -168,8 +179,9 @@ bool Minigame::isMinigameFailed() const {
 void Minigame::updateMinigame(sf::Clock& minigame_timer) {
     this->minigame_active = true;
     this->minigame_failed = false;
-    this->updateEnemies();
-    this->handleMovementInput(this->updateMinigameDeltaTime());
+    minigame_delta_time = this->updateMinigameDeltaTime();
+    this->handleMovementInput(minigame_delta_time);
+    this->updateEnemies(minigame_delta_time);
     this->handleEnemySpawns();
     this->handleMinigameEnd(minigame_timer);
 }
@@ -212,9 +224,39 @@ void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& eve
 }
 
 void Minigame::generateEnemy() {
-    auto enemy = std::make_unique<Fish>();
-    enemy->spawn();
-    enemies.push_back(std::move(enemy));
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> distrib_enemy(0, 2);
+    const int enemy_type = distrib_enemy(gen);
+
+    std::unique_ptr<Enemy> e;
+    switch (minigame_difficulty) {
+        case 1:
+            e = std::make_unique<Fish>();
+            break;
+        case 2:
+            if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
+                e = std::make_unique<Frog>();
+                this->frog_counter ++;
+            }
+            else {
+                e = std::make_unique<Fish>();
+            }
+            break;
+        case 3:
+            if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
+                e = std::make_unique<Frog>();
+                this->frog_counter ++;
+            }
+            else {
+                e = std::make_unique<Fish>();
+            }
+            break;
+        default:
+            break;
+    }
+    e->spawn();
+    enemies.push_back(std::move(e));
 }
 
 std::ostream& operator<<(std::ostream& os, const Minigame& minigame) {

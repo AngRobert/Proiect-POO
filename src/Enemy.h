@@ -7,7 +7,7 @@
 class Enemy {
 private:
     virtual void generateEnemyPosition() = 0;
-    virtual void moveEnemy() = 0;
+    virtual void moveEnemy(float deltaTime) = 0;
 
 protected:
     std::shared_ptr<sf::Texture> enemy_texture;
@@ -24,7 +24,7 @@ public:
 
     void spawn();
     void setEnemySize(sf::Vector2f desiredSize);
-    void updateEnemy();
+    void updateEnemy(float deltaTime);
 
     Enemy& operator=(const Enemy& other_enemy);
     friend std::ostream& operator<<(std::ostream& os, const Enemy& enemy);

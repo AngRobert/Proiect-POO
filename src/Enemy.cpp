@@ -28,8 +28,8 @@ void Enemy::spawn() {
     this->generateEnemyPosition();
 }
 
-void Enemy::updateEnemy() {
-    this->moveEnemy();
+void Enemy::updateEnemy(const float deltaTime) {
+    this->moveEnemy(deltaTime);
 }
 
 Enemy& Enemy::operator=(const Enemy& other_enemy) {

@@ -81,6 +81,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/MinigamePlayer.h
         src/Fish.cpp
         src/Fish.h
+        src/Frog.cpp
+        src/Frog.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

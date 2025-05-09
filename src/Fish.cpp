@@ -10,7 +10,7 @@ void Fish::generateEnemyPosition() {
 
 
     auto X = static_cast<float>(fish_position(generator));
-    const auto Y = static_cast<float>(distrib_fish_Y(generator));
+    const auto Y = static_cast<float>(distrib_fish_Y(generator)) * 10.f;
 
     // 375 = on the left side of the minigame arena, 1545 = right
 
@@ -28,7 +28,7 @@ void Fish::generateEnemyPosition() {
     this->enemy_sprite.setPosition(X, Y);
 }
 
-void Fish::moveEnemy() {
+void Fish::moveEnemy(float deltaTime) {
     if (this->fish_pos == "left") {
         this->enemy_sprite.move(enemy_speed, 0.f);
     }
@@ -37,7 +37,7 @@ void Fish::moveEnemy() {
     }
 }
 
-Fish::Fish() : Enemy(5.f, sf::Vector2f(150.f, 75.f)), fish_y_range(sf::Vector2i(350, 850)), fish_pos("") {
+Fish::Fish() : Enemy(7.f, sf::Vector2f(150.f, 75.f)), fish_y_range(sf::Vector2i(35, 85)), fish_pos("") {
     this->enemy_texture = std::make_shared<sf::Texture>();
     this->enemy_texture->loadFromFile("textures/fish_texture.png");
     this->enemy_sprite.setTexture(*this->enemy_texture);

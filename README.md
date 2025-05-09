@@ -9,6 +9,8 @@ The more consecutive strokes you have without breathing, the faster your breath 
 
 Minigame: Dodge the randomly spawning enemies in order to stay alive! Use the WASD keys to move the player.
 
+Enemies: Frogs only spawn from the second minigame onward.
+
 Controls:
 
 Q or E: Stroke (move your arms) in the water. Alternate both Q and E for more speed. Make sure to respect the timing given by the circle at the top of the screen! When the green outer circle touches the rim of the

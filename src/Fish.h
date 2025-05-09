@@ -12,7 +12,7 @@ private:
 
 public:
 
-    void moveEnemy() override;
+    void moveEnemy(float deltaTime) override;
     explicit Fish();
     Enemy* clone() const override;
 };
