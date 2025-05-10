@@ -8,7 +8,7 @@ class Enemy {
 private:
     virtual void generateEnemyPosition() = 0;
     virtual void moveEnemy(float deltaTime) = 0;
-    virtual void print(std::ostream& os) const;
+    virtual void print(std::ostream& os) const = 0;
 
 protected:
     std::shared_ptr<sf::Texture> enemy_texture;
