@@ -18,6 +18,7 @@ private:
     std::string initial_frog_pos;
 
     void generateEnemyPosition() override;
+    void print(std::ostream& os) const override;
 
 public:
     explicit Frog();

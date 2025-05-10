@@ -13,11 +13,11 @@ void Frog::generateEnemyPosition() {
     sf::Vector2f current_scale = this->enemy_sprite.getScale();
 
     if (X < 960.f) {
-        this->initial_frog_pos = "left";
+        this->enemy_pos = "left";
         this->enemy_sprite.setScale(-current_scale.x, current_scale.y);
     }
     else {
-        this->initial_frog_pos = "right";
+        this->enemy_pos = "right";
     }
     // Y = 350.f top of arena, Y = 850.f bottom of arena
     if (Y == 0) {
@@ -33,6 +33,10 @@ void Frog::generateEnemyPosition() {
     this->enemy_sprite.setPosition(X, Y);
 }
 
+void Frog::print(std::ostream &os) const {
+    os << "Frog started on the " << this->enemy_pos << " side of the arena\n";
+}
+
 Frog::Frog() : Enemy(300.f, sf::Vector2f(100.f, 85.f)){
     this->enemy_texture = std::make_shared<sf::Texture>();
     if (!this->enemy_texture->loadFromFile("textures/frog_texture.png")) {
@@ -45,7 +49,7 @@ void Frog::moveEnemy(const float deltaTime) {
     time_since_last_jump += deltaTime;
     if (!this->is_jumping && time_since_last_jump >= jump_cooldown) {
         this->start_pos = this->enemy_sprite.getPosition();
-        if (this->initial_frog_pos == "left") {
+        if (this->enemy_pos == "left") {
             this->end_pos = sf::Vector2f(start_pos.x + jump_distance, start_pos.y);
         }
         else {

@@ -274,7 +274,27 @@ std::ostream& operator<<(std::ostream& os, const Minigame& minigame) {
     os << "Minigame of difficulty " << minigame.minigame_difficulty << " has "
        << minigame.max_enemies << " max enemies\n";
     for (std::size_t i = 0; i < minigame.enemies.size(); ++i) {
-        os << "Enemy " << i << " " << minigame.enemies[i];
+        os << "Enemy " << i << " " << *minigame.enemies[i];
     }
     return os;
 }
+
+void swap(Minigame &lhs, Minigame &rhs) noexcept {
+        using std::swap;
+        swap(lhs.max_enemies, rhs.max_enemies);
+        swap(lhs.minigame_difficulty, rhs.minigame_difficulty);
+        swap(lhs.frog_counter, rhs.frog_counter);
+        swap(lhs.pufferfish_counter, rhs.pufferfish_counter);
+        swap(lhs.enemy_spawn_timer, rhs.enemy_spawn_timer);
+        swap(lhs.enemy_spawn_clock, rhs.enemy_spawn_clock);
+        swap(lhs.minigame_arena, rhs.minigame_arena);
+        swap(lhs.minigame_active, rhs.minigame_active);
+        swap(lhs.minigame_failed, rhs.minigame_failed);
+        swap(lhs.minigame_success, rhs.minigame_success);
+        swap(lhs.enemies, rhs.enemies);
+        swap(lhs.minigame_player, rhs.minigame_player);
+        swap(lhs.minigame_delta_clock, rhs.minigame_delta_clock);
+        swap(lhs.minigame_delta_time, rhs.minigame_delta_time);
+        swap(lhs.minigame_font, rhs.minigame_font);
+        swap(lhs.minigame_text, rhs.minigame_text);
+    }

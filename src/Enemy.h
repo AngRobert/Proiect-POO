@@ -8,6 +8,7 @@ class Enemy {
 private:
     virtual void generateEnemyPosition() = 0;
     virtual void moveEnemy(float deltaTime) = 0;
+    virtual void print(std::ostream& os) const;
 
 protected:
     std::shared_ptr<sf::Texture> enemy_texture;
@@ -19,7 +20,7 @@ protected:
     void generateDefaultEnemyPosition();
 
 public:
-    explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0), const std::string& enemy_pos_ = "");
+    explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0), std::string enemy_pos_ = "");
     Enemy(const Enemy& other_enemy);
     virtual ~Enemy();
     virtual Enemy* clone() const = 0;

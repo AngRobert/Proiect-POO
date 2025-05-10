@@ -6,6 +6,10 @@ void Fish::generateEnemyPosition() {
     this->generateDefaultEnemyPosition();
 }
 
+void Fish::print(std::ostream &os) const {
+    os << "Fish started from the " << this->enemy_pos << " side of the arena";
+}
+
 void Fish::moveEnemy(const float deltaTime) {
     if (this->enemy_pos == "left") {
         this->enemy_sprite.move(enemy_speed * deltaTime, 0.f);

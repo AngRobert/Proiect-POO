@@ -17,7 +17,7 @@ private:
     void deflate();
 
     [[nodiscard]] bool shouldInflate(sf::Vector2f current_pos) const;
-
+    void print(std::ostream &os) const override;
 
 public:
     explicit Pufferfish();

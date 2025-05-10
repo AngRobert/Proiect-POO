@@ -51,5 +51,6 @@ public:
     void generateEnemy();
 
     friend std::ostream& operator<<(std::ostream& os, const Minigame& minigame);
+    friend void swap(Minigame& lhs, Minigame& rhs) noexcept;
 };
 #endif // MINIGAME_H

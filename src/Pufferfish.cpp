@@ -62,6 +62,10 @@ bool Pufferfish::shouldInflate(const sf::Vector2f current_pos) const {
     return std::abs(current_pos.x - this->initial_pufferfish_pos.x) > 400.f * this->inflate_counter;
 }
 
+void Pufferfish::print(std::ostream &os) const {
+    os << "Pufferfish started on the " << this->enemy_pos << " side of the arena";
+}
+
 Enemy * Pufferfish::clone() const {
     return new Pufferfish(*this);
 }

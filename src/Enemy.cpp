@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp> // For sf::RenderTarget
 #include <random>
 #include <iostream>
+#include <utility>
 
 void Enemy::setEnemySize(const sf::Vector2f desiredSize) {
     sf::Vector2u const original_enemy_texture_size = enemy_texture->getSize();
@@ -36,8 +37,10 @@ void Enemy::generateDefaultEnemyPosition() {
     this->enemy_sprite.setPosition(X, Y);
 }
 
-Enemy::Enemy(const float speed_, const sf::Vector2f size_, const std::string& enemy_pos_) :
-    enemy_speed(speed_), enemy_size(size_), enemy_pos(enemy_pos_) {}
+void Enemy::print(std::ostream &os) const {}
+
+Enemy::Enemy(const float speed_, const sf::Vector2f size_, std::string enemy_pos_) :
+    enemy_speed(speed_), enemy_size(size_), enemy_pos(std::move(enemy_pos_)) {}
 
 Enemy::Enemy(const Enemy& other_enemy) = default;
 
@@ -70,8 +73,9 @@ Enemy& Enemy::operator=(const Enemy& other_enemy) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Enemy& enemy) {
-    os << "has " << enemy.enemy_speed << " speed, " << enemy.enemy_size.x << " " << enemy.enemy_size.y << " size, "
-       << " difficulty\n";
+    os << "Enemy has " << enemy.enemy_speed << " speed, " << enemy.enemy_size.x << " " << enemy.enemy_size.y << " size";
+    enemy.print(os);
+    os << "\n";
     return os;
 }
 

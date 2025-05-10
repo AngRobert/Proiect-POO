@@ -7,6 +7,7 @@ class Fish : public Enemy {
 private:
 
     void generateEnemyPosition() override;
+    void print(std::ostream& os) const override;
 
 public:
 
