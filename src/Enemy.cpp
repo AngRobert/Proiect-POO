@@ -37,8 +37,6 @@ void Enemy::generateDefaultEnemyPosition() {
     this->enemy_sprite.setPosition(X, Y);
 }
 
-void Enemy::print(std::ostream &os) const {}
-
 Enemy::Enemy(const float speed_, const sf::Vector2f size_, std::string enemy_pos_) :
     enemy_speed(speed_), enemy_size(size_), enemy_pos(std::move(enemy_pos_)) {}
 
