@@ -12,6 +12,7 @@ private:
     int max_enemies;
     int minigame_difficulty;
     int frog_counter = 0;
+    int pufferfish_counter = 0;
     float enemy_spawn_timer;
     sf::Clock enemy_spawn_clock;
     sf::RectangleShape minigame_arena;

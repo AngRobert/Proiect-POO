@@ -14,9 +14,12 @@ protected:
     sf::Sprite enemy_sprite;
     float enemy_speed;
     sf::Vector2f enemy_size;
+    std::string enemy_pos;
+
+    void generateDefaultEnemyPosition();
 
 public:
-    explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0));
+    explicit Enemy(float speed_ = 0.f, sf::Vector2f size_ = sf::Vector2f(0, 0), const std::string& enemy_pos_ = "");
     Enemy(const Enemy& other_enemy);
     virtual ~Enemy();
     virtual Enemy* clone() const = 0;

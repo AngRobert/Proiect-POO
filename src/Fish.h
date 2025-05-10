@@ -5,8 +5,6 @@
 
 class Fish : public Enemy {
 private:
-    sf::Vector2i fish_y_range;
-    std::string fish_pos;
 
     void generateEnemyPosition() override;
 

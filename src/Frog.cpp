@@ -43,7 +43,6 @@ Frog::Frog() : Enemy(300.f, sf::Vector2f(100.f, 85.f)){
 
 void Frog::moveEnemy(const float deltaTime) {
     time_since_last_jump += deltaTime;
-    std::cout << deltaTime << std::endl;
     if (!this->is_jumping && time_since_last_jump >= jump_cooldown) {
         this->start_pos = this->enemy_sprite.getPosition();
         if (this->initial_frog_pos == "left") {

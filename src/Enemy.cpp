@@ -10,8 +10,34 @@ void Enemy::setEnemySize(const sf::Vector2f desiredSize) {
     enemy_sprite.setScale(scaleX, scaleY);
 }
 
-Enemy::Enemy(const float speed_, const sf::Vector2f size_) :
-    enemy_speed(speed_), enemy_size(size_) {}
+void Enemy::generateDefaultEnemyPosition() {
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<int> distrib_fish_Y(35, 85);
+    std::uniform_int_distribution<int> fish_position(0, 1);
+
+
+    auto X = static_cast<float>(fish_position(generator));
+    const auto Y = static_cast<float>(distrib_fish_Y(generator)) * 10.f;
+
+    // 375 = on the left side of the minigame arena, 1545 = right
+
+    if (X == 0) {
+        X = 375.f;
+        this->enemy_pos = "left";
+    }
+    else {
+        X = 1545.f;
+        this->enemy_pos = "right";
+        const sf::Vector2f current_scale = enemy_sprite.getScale();
+        this->enemy_sprite.setScale(-current_scale.x, current_scale.y);
+    }
+
+    this->enemy_sprite.setPosition(X, Y);
+}
+
+Enemy::Enemy(const float speed_, const sf::Vector2f size_, const std::string& enemy_pos_) :
+    enemy_speed(speed_), enemy_size(size_), enemy_pos(enemy_pos_) {}
 
 Enemy::Enemy(const Enemy& other_enemy) = default;
 

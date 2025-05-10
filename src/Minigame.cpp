@@ -3,6 +3,8 @@
 #include <iostream>
 #include <random>
 
+#include "Pufferfish.h"
+
 
 Minigame::Minigame(const int max_enemies_, const int minigame_difficulty_, const float enemy_spawn_timer_)
     : max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemy_spawn_timer(enemy_spawn_timer_), minigame_delta_time(0.f) {
@@ -78,13 +80,22 @@ void Minigame::initMinigameArena() {
     this->minigame_arena.setPosition(sf::Vector2f(960.f, 600.f));
 }
 
-void Minigame::updateEnemies(float deltaTime) {
+void Minigame::updateEnemies(const float deltaTime) {
+    int frog_count = 0, pufferfish_count = 0;
     for (const auto& enemy : enemies) {
         enemy->updateEnemy(deltaTime);
         if (this->minigame_player.isPlayerHit(enemy->getEnemyBounds())) {
             minigame_failed = true;
         }
+        if (dynamic_cast<Frog*>(enemy.get()) != nullptr) {
+            frog_count++;
+        }
+        else if (dynamic_cast<Pufferfish*>(enemy.get()) != nullptr) {
+            pufferfish_count ++;
+        }
     }
+    this->frog_counter = frog_count;
+    this->pufferfish_counter = pufferfish_count;
 }
 
 void Minigame::renderEnemies(sf::RenderTarget& target) const {
@@ -228,7 +239,6 @@ void Minigame::generateEnemy() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distrib_enemy(0, 2);
     const int enemy_type = distrib_enemy(gen);
-
     std::unique_ptr<Enemy> e;
     switch (minigame_difficulty) {
         case 1:
@@ -237,16 +247,17 @@ void Minigame::generateEnemy() {
         case 2:
             if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
                 e = std::make_unique<Frog>();
-                this->frog_counter ++;
             }
             else {
                 e = std::make_unique<Fish>();
             }
             break;
         case 3:
-            if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
+            if (enemy_type == 2 && pufferfish_counter < 2) {
+                e = std::make_unique<Pufferfish>();
+            }
+            else if (enemy_type == 1 && frog_counter < 4) {
                 e = std::make_unique<Frog>();
-                this->frog_counter ++;
             }
             else {
                 e = std::make_unique<Fish>();
