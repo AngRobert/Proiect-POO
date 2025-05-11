@@ -2,6 +2,7 @@
 #define GAMEEXCEPTIONS_H
 #include <stdexcept>
 #include <memory>
+#include <string>
 
 class GameException : public std::runtime_error {
 public:

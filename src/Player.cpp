@@ -80,16 +80,8 @@ float Player::getBreath() const {
     return this->breath;
 }
 
-sf::Clock &Player::getPlayerStrokeTimer() {
-    return this->strokeTimer;
-}
-
-bool Player::isCollidingWithPoint(sf::Vector2f point_pos) const {
+bool Player::isCollidingWithPoint(const sf::Vector2f point_pos) const {
     return this->player_sprite.getGlobalBounds().contains(point_pos);
-}
-
-void Player::resetStrokeTimer() {
-    this->strokeTimer.restart();
 }
 
 void Player::draw(sf::RenderTarget& target) const {

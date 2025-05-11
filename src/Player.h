@@ -30,9 +30,7 @@ private:
 public:
     explicit Player(float player_movement_speed_ = 0.f);
     [[nodiscard]] float getBreath() const;
-    [[nodiscard]] sf::Clock &getPlayerStrokeTimer();
     [[nodiscard]] bool isCollidingWithPoint(sf::Vector2f point_pos) const;
-    void resetStrokeTimer();
     void draw(sf::RenderTarget& target) const;
     void doBreath();
     void updatePlayer(sf::Vector2f location, float deltaTime);
