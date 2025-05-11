@@ -1,10 +1,9 @@
 #include "GameOverScreen.h"
-
-#include <iostream>
+#include "GameExceptions.h"
 
 void GameOverScreen::initGameOverFont() {
     if (!this->game_over_font.loadFromFile("textures/fonts/Comic_Sans_MS.ttf")) {
-        std::cerr << "Failed to load font!" << std::endl;
+        throw ResourceLoadException{"Failed to load game over font !"};
     }
 }
 

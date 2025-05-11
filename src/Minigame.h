@@ -19,12 +19,14 @@ private:
     bool minigame_active = false;
     bool minigame_failed = false;
     bool minigame_success = false;
+    bool hasException = false;
     std::vector<std::unique_ptr<Enemy>> enemies;
     MinigamePlayer minigame_player;
     sf::Clock minigame_delta_clock;
     float minigame_delta_time;
     sf::Font minigame_font;
     sf::Text minigame_text;
+    sf::Text minigame_error_text;
 
     void initMinigameText();
     void initMinigameFont();
@@ -47,7 +49,7 @@ public:
     [[nodiscard]] bool isMinigameFailed() const;
     void updateMinigame(sf::Clock& minigame_timer);
     void renderMinigame(sf::RenderWindow& target) const;
-    void pollMinigameEvents(sf::RenderWindow& window, const sf::Event& event, sf::Clock& minigame_timer);
+    void static pollMinigameEvents(sf::RenderWindow& window, const sf::Event& event);
     void generateEnemy();
 
     friend std::ostream& operator<<(std::ostream& os, const Minigame& minigame);

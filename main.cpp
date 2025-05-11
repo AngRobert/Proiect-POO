@@ -1,14 +1,22 @@
+#include <iostream>
+
 #include "src/Game.h"
+#include "src/GameExceptions.h"
 
 int main() {
     // Init Game
-    Game game;
-    while (game.isRunning()) {
-        game.pollEvents();
+    std::unique_ptr<Game> game;
+    try {
+        game = std::make_unique<Game>();
+    } catch (const ResourceLoadException& e) {
+        std::cout << e.what() << std::endl;
+    }
+    while (game->isRunning()) {
+        game->pollEvents();
 
-        game.update();
+        game->update();
 
-        game.render();
+        game->render();
     }
     return 0;
 }

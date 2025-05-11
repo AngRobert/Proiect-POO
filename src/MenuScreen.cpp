@@ -1,6 +1,5 @@
 #include "MenuScreen.h"
-
-#include <iostream>
+#include "GameExceptions.h"
 
 MenuScreen::MenuScreen() : active(true) {
     this->initMenuScreenFont();
@@ -13,7 +12,7 @@ bool MenuScreen::isMenuScreenActive() const {
 
 void MenuScreen::initMenuScreenFont() {
     if (!this->menu_font.loadFromFile("textures/fonts/Comic_Sans_MS.ttf")) {
-        std::cerr << "Failed to load font" << std::endl;
+        throw ResourceLoadException{"Failed to load menu font!"};
     }
 }
 

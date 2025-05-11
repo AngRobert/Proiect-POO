@@ -1,6 +1,7 @@
 #include "RhythmCircle.h"
 #include <SFML/Graphics.hpp> // For sf::RenderTarget
-#include <iostream>
+
+#include "GameExceptions.h"
 
 void RhythmCircle::resetCircle() {
     // Resets the circle timer and its scale
@@ -10,7 +11,7 @@ void RhythmCircle::resetCircle() {
 
 RhythmCircle::RhythmCircle(const std::string& circle_texture_filename, const sf::Vector2f circle_pos) {
     if (!this->circle_texture.loadFromFile(circle_texture_filename)) {
-        std::cerr << "Failed to load circle texture" << std::endl;
+        throw ResourceLoadException{"Failed to load rhythm circle texture!"};
     }
     this->circle_sprite.setTexture(circle_texture);
     this->circle_sprite.setOrigin(this->circle_sprite.getGlobalBounds().width / 2.f,

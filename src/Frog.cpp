@@ -2,6 +2,8 @@
 #include <iostream>
 #include <random>
 
+#include "GameExceptions.h"
+
 void Frog::generateEnemyPosition() {
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -12,6 +14,9 @@ void Frog::generateEnemyPosition() {
     auto Y = static_cast<float>(distrib_y(gen));
     sf::Vector2f current_scale = this->enemy_sprite.getScale();
 
+    if (X < 520.f || X > 1400.f) {
+        throw InvalidEnemyPosition{"Frog will spawn outside the arena or clip into the walls!"};
+    }
     if (X < 960.f) {
         this->enemy_pos = "left";
         this->enemy_sprite.setScale(-current_scale.x, current_scale.y);
@@ -40,7 +45,7 @@ void Frog::print(std::ostream &os) const {
 Frog::Frog() : Enemy(300.f, sf::Vector2f(100.f, 85.f)){
     this->enemy_texture = std::make_shared<sf::Texture>();
     if (!this->enemy_texture->loadFromFile("textures/frog_texture.png")) {
-        std::cerr << "Failed to load frog texture";
+        throw ResourceLoadException{"Failed to load frog texture!"};
     }
     this->enemy_sprite.setTexture(*this->enemy_texture);
 }
@@ -63,6 +68,7 @@ void Frog::moveEnemy(const float deltaTime) {
     if (is_jumping) {
         jump_timer += deltaTime;
         float t = jump_timer / jump_duration;
+
         if (t >= 1.f) {
             t = 1.f;
             is_jumping = false;

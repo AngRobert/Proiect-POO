@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "GameExceptions.h"
+
 void Player::initPlayer() {
     this->player_sprite.setTexture(*this->player_texture);
     this->player_sprite.setOrigin(player_sprite.getGlobalBounds().width / 2.f, 0.f);
@@ -16,10 +18,12 @@ void Player::initPlayer() {
 
 void Player::initPlayerTexture() {
     this->player_texture = std::make_shared<sf::Texture>();
-    player_texture->loadFromFile("textures/player_texture.png");
+    if (!player_texture->loadFromFile("textures/player_texture.png")) {
+        throw ResourceLoadException{"Failed to load player texture!"};
+    }
 }
 
-void Player::movePlayer(sf::Vector2f const normalized_direction, float deltaTime) {
+void Player::movePlayer(sf::Vector2f const normalized_direction, const float deltaTime) {
     sf::Vector2f const movement = normalized_direction * deltaTime * player_movement_speed;
     player_sprite.move(movement);
 }
@@ -76,8 +80,16 @@ float Player::getBreath() const {
     return this->breath;
 }
 
+sf::Clock &Player::getPlayerStrokeTimer() {
+    return this->strokeTimer;
+}
+
 bool Player::isCollidingWithPoint(sf::Vector2f point_pos) const {
     return this->player_sprite.getGlobalBounds().contains(point_pos);
+}
+
+void Player::resetStrokeTimer() {
+    this->strokeTimer.restart();
 }
 
 void Player::draw(sf::RenderTarget& target) const {
@@ -88,7 +100,7 @@ void Player::doBreath() {
     this->next_stroke_is_breath = true;
 }
 
-void Player::updatePlayer(sf::Vector2f location, float deltaTime) {
+void Player::updatePlayer(const sf::Vector2f location, const float deltaTime) {
     // location = mouse position
 
     this->updateBreath();

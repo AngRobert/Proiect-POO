@@ -85,6 +85,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
     src/Frog.h
     src/Pufferfish.cpp
     src/Pufferfish.h
+        src/GameExceptions.cpp
+        src/GameExceptions.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

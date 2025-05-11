@@ -1,8 +1,10 @@
 #include "Enemy.h"
-#include <SFML/Graphics.hpp> // For sf::RenderTarget
+#include <SFML/Graphics.hpp>
 #include <random>
 #include <iostream>
 #include <utility>
+
+#include "GameExceptions.h"
 
 void Enemy::setEnemySize(const sf::Vector2f desiredSize) {
     sf::Vector2u const original_enemy_texture_size = enemy_texture->getSize();
@@ -17,10 +19,15 @@ void Enemy::generateDefaultEnemyPosition() {
     std::uniform_int_distribution<int> distrib_fish_Y(35, 85);
     std::uniform_int_distribution<int> fish_position(0, 1);
 
-
     auto X = static_cast<float>(fish_position(generator));
     const auto Y = static_cast<float>(distrib_fish_Y(generator)) * 10.f;
 
+    if (Y < 349.f) {
+        throw InvalidEnemyPosition{"Fish will spawn above the arena or will clip into the walls!"};
+    }
+    if (Y > 851.f) {
+        throw InvalidEnemyPosition{"Fish will spawn below the arena or clip into it!"};
+    }
     // 375 = on the left side of the minigame arena, 1545 = right
 
     if (X == 0) {
@@ -52,7 +59,11 @@ void Enemy::spawn() {
     this->setEnemySize(this->enemy_size);
     this->enemy_sprite.setOrigin(this->enemy_sprite.getLocalBounds().width / 2,
                                 this->enemy_sprite.getLocalBounds().height / 2);
-    this->generateEnemyPosition();
+    try {
+        this->generateEnemyPosition();
+    } catch (const InvalidEnemyPosition& e) {
+        std::cout << e.what() << std::endl;
+    }
 }
 
 void Enemy::updateEnemy(const float deltaTime) {

@@ -1,6 +1,8 @@
 #include "Game.h"
 #include <iostream>
 
+#include "GameExceptions.h"
+
 Game::Game() : rhythm_circle("textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)), window(nullptr), event(), minigame_timer(1000), points_counter(0), max_points(5) {
     initWindow();
     initFont();
@@ -18,7 +20,7 @@ Game::~Game() {
 
 void Game::initFont() {
     if (!font.loadFromFile("textures/fonts/Comic_Sans_MS.ttf")) {
-        std::cerr << "Failed to load font!" << std::endl;
+        throw ResourceLoadException{"Failed to load game text font!"};
     }
 }
 
@@ -176,7 +178,7 @@ void Game::pollEvents() {
             this->game_over_screen.pollGameOverEvents(*this->window, this->event, this->mouse_position_window, this->player, this->current_minigame);
         }
         else if (current_minigame.isMinigameRunning()) {
-            current_minigame.pollMinigameEvents(*window, event, minigame_timer_clock);
+            current_minigame.pollMinigameEvents(*window, event);
         }
         else {
             pollGameEvents();

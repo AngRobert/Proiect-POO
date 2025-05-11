@@ -2,6 +2,8 @@
 #include <memory>
 #include <random>
 
+#include "GameExceptions.h"
+
 void Fish::generateEnemyPosition() {
     this->generateDefaultEnemyPosition();
 }
@@ -21,7 +23,9 @@ void Fish::moveEnemy(const float deltaTime) {
 
 Fish::Fish() : Enemy(350.f, sf::Vector2f(150.f, 75.f)) {
     this->enemy_texture = std::make_shared<sf::Texture>();
-    this->enemy_texture->loadFromFile("textures/fish_texture.png");
+    if (!this->enemy_texture->loadFromFile("textures/fish_texture.png")) {
+        throw ResourceLoadException{"Failed to load fish texture!"};
+    }
     this->enemy_sprite.setTexture(*this->enemy_texture);
 }
 

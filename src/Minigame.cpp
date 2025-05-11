@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 
+#include "GameExceptions.h"
 #include "Pufferfish.h"
 
 
@@ -41,7 +42,7 @@ Minigame & Minigame::operator=(const Minigame &other) {
         minigame_player = other.minigame_player;
 
         if (!minigame_font.loadFromFile("textures/fonts/papyrus.ttf")) {
-            std::cerr << "Failed to load minigame font" << std::endl;
+            throw ResourceLoadException{"Failed to load minigame font!"};
         }
 
         minigame_text = other.minigame_text;
@@ -62,11 +63,18 @@ void Minigame::initMinigameText() {
     this->minigame_text.setOrigin(this->minigame_text.getGlobalBounds().width / 2,
                                     this->minigame_text.getGlobalBounds().height / 2);
     this->minigame_text.setPosition(sf::Vector2f(960.f, 100.f));
+
+    this->minigame_error_text.setFont(minigame_font);
+    this->minigame_error_text.setCharacterSize(40);
+    this->minigame_error_text.setString("PRESS WASD TO MOVE!");
+    this->minigame_error_text.setOrigin(this->minigame_error_text.getGlobalBounds().width / 2,
+                                    this->minigame_error_text.getGlobalBounds().height / 2);
+    this->minigame_error_text.setPosition(sf::Vector2f(960.f, 150.f));
 }
 
 void Minigame::initMinigameFont() {
     if (!this->minigame_font.loadFromFile("textures/fonts/papyrus.ttf")) {
-        std::cerr << "Failed to load minigame font" << std::endl;
+        throw ResourceLoadException{"Failed to load minigame font!"};
     }
 }
 
@@ -155,7 +163,12 @@ void Minigame::handleEnemySpawns() {
     }
     if (this->enemy_spawn_clock.getElapsedTime().asSeconds() > this->enemy_spawn_timer && this->enemies.size() < maxEnemies) {
         this->enemy_spawn_clock.restart();
-        this->generateEnemy();
+        try {
+            this->generateEnemy();
+        } catch (const InvalidMinigameDifficulty &e) {
+            this->minigame_success = true;
+            std::cout << e.what() << std::endl;
+        }
     }
 }
 
@@ -179,6 +192,7 @@ bool Minigame::hasEnemyInsideArena() const {
     }
     return false;
 }
+
 bool Minigame::isMinigameRunning() const {
     return this->minigame_active;
 }
@@ -191,7 +205,13 @@ void Minigame::updateMinigame(sf::Clock& minigame_timer) {
     this->minigame_active = true;
     this->minigame_failed = false;
     minigame_delta_time = this->updateMinigameDeltaTime();
-    this->handleMovementInput(minigame_delta_time);
+    try {
+        this->handleMovementInput(minigame_delta_time);
+        this->hasException = false;
+    } catch (const InvalidControlSchemeException& e) {
+        std::cout << e.what() << std::endl;
+        this->hasException = true;
+    }
     this->updateEnemies(minigame_delta_time);
     this->handleEnemySpawns();
     this->handleMinigameEnd(minigame_timer);
@@ -199,14 +219,19 @@ void Minigame::updateMinigame(sf::Clock& minigame_timer) {
 
 void Minigame::renderMinigame(sf::RenderWindow& target) const {
     target.clear(sf::Color::Black);
-    target.draw(minigame_text);
+    if (!this->hasException) {
+        target.draw(minigame_text);
+    }
+    else {
+        target.draw(this->minigame_error_text);
+    }
     target.draw(minigame_arena);
     this->renderEnemies(target);
     this->minigame_player.draw(target);
     target.display();
 }
 
-void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& event, sf::Clock& minigame_timer) {
+void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& event) {
     switch (event.type) {
         case sf::Event::Closed:
             window.close();
@@ -215,15 +240,6 @@ void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& eve
             switch (event.key.code) {
                 case sf::Keyboard::Escape:
                     window.close();
-                    break;
-                case sf::Keyboard::Space:
-                    minigame_active = false;
-                    this->enemies.clear();
-                    this->minigame_player.reset();
-                    minigame_timer.restart();
-                    break;
-                case sf::Keyboard::B:
-                    this->generateEnemy();
                     break;
                 default:
                     break;
@@ -264,7 +280,7 @@ void Minigame::generateEnemy() {
             }
             break;
         default:
-            break;
+            throw InvalidMinigameDifficulty{minigame_difficulty};
     }
     e->spawn();
     enemies.push_back(std::move(e));

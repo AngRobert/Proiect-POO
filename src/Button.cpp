@@ -1,6 +1,5 @@
 #include "Button.h"
-
-#include <iostream>
+#include "GameExceptions.h"
 #include <string>
 
 Button::Button(const std::string& button_string, const sf::Vector2f button_pos, const sf::Vector2f button_size,
@@ -36,7 +35,7 @@ void Button::updateButton(const sf::Vector2f mouse_pos) {
 
 void Button::initButtonFont() {
     if (!this->button_font.loadFromFile("textures/fonts/Comic_Sans_MS.ttf")) {
-        std::cerr << "Failed to load font" << std::endl;
+        throw ResourceLoadException{"Failed to load button font!"};
     }
 }
 

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "GameExceptions.h"
+
 MinigamePlayer::MinigamePlayer() : minigame_player_speed(250.f) {
     this->initMinigamePlayerTexture();
     this->initMinigamePlayerSprite();
@@ -29,7 +31,7 @@ void MinigamePlayer::updateMinigamePlayer(const sf::Vector2f& direction, const f
 void MinigamePlayer::initMinigamePlayerTexture() {
     minigame_player_texture = std::make_shared<sf::Texture>();
     if (!this->minigame_player_texture->loadFromFile("textures/minigame_player_texture.png")) {
-        std::cerr << "Error loading texture" << std::endl;
+        throw ResourceLoadException{"Failed to load minigame player texture!"};
     }
 }
 

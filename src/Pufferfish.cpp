@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "GameExceptions.h"
+
 void Pufferfish::generateEnemyPosition() {
     this->generateDefaultEnemyPosition();
     this->enemy_sprite.setScale(-this->enemy_sprite.getScale().x, this->enemy_sprite.getScale().y);
@@ -11,7 +13,7 @@ void Pufferfish::generateEnemyPosition() {
 Pufferfish::Pufferfish() : Enemy(300.f, sf::Vector2f(85.f, 85.f)) {
     this->enemy_texture = std::make_shared<sf::Texture>();
     if (!this->enemy_texture->loadFromFile("textures/pufferfish_texture.png")) {
-        std::cerr << "Failed to load pufferfish texture" << std::endl;
+        throw ResourceLoadException{"Failed to load pufferfish texture!"};
     }
     this->enemy_sprite.setTexture(*this->enemy_texture);
 }
@@ -21,7 +23,6 @@ void Pufferfish::moveEnemy(const float deltaTime) {
     if (this->shouldInflate(current_pos)) {
         this->isInflated = true;
         this->inflate_timer += deltaTime;
-        std::cout << inflate_timer << "\n";
 
         if (this->inflate_timer < this->inflate_duration / 2.f) {
             this->inflate();
@@ -49,12 +50,10 @@ void Pufferfish::moveEnemy(const float deltaTime) {
 }
 
 void Pufferfish::inflate() {
-    std::cout << "INFLATING\n";
     this->enemy_sprite.setScale(this->enemy_sprite.getScale().x * 1.013f, this->enemy_sprite.getScale().y * 1.013f);
 }
 
 void Pufferfish::deflate() {
-    std::cout << "DEFLATING\n";
     this->enemy_sprite.setScale(this->enemy_sprite.getScale().x * 0.987f, this->enemy_sprite.getScale().y * 0.987f);
 }
 

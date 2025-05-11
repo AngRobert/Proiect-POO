@@ -20,8 +20,3 @@ W: Press W to make your next stroke be a "breath stroke"! What this means is tha
 
 Best / Safest way to play (for now (this is subject to change)): Press Q when the timing is right, then W, and E, when the timing is right again. This should ensure that you don't run out of breath while moving and collecting points.
 
-# Known bugs / lack of features: ( will be fixed / added in the near future)
-
-1. It is very easily possible to stack infinite speed by not moving the cursor and repeating the same inputs.
-2. Points can spawn above text, making them very hard to see and annoying to collect.
-3. Player can be rotated off-screen when close to the edge of the window (not really a bug).
