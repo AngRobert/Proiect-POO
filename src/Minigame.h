@@ -12,8 +12,6 @@ private:
     int max_enemies;
     int minigame_difficulty;
     int frog_counter = 0;
-    int pufferfish_counter = 0;
-    int squid_counter = 0;
     float enemy_spawn_timer;
     sf::Clock enemy_spawn_clock;
     sf::RectangleShape minigame_arena;
@@ -25,7 +23,7 @@ private:
     MinigamePlayer minigame_player;
     sf::Clock minigame_delta_clock;
     float minigame_delta_time;
-    sf::Font minigame_font;
+    std::shared_ptr<sf::Font> minigame_font;
     sf::Text minigame_text;
     sf::Text minigame_error_text;
 
@@ -43,7 +41,7 @@ private:
 public:
     explicit Minigame(int max_enemies_ = 12, int minigame_difficulty_ = 1, float enemy_spawn_timer_ = 0.25f);
     Minigame(const Minigame& other);
-    Minigame& operator=(const Minigame& other);
+    Minigame& operator=(Minigame other);
     ~Minigame() = default;
 
     [[nodiscard]] bool isMinigameRunning() const;
