@@ -14,49 +14,35 @@ Minigame::Minigame(const int max_enemies_, const int minigame_difficulty_, const
     this->initMinigameArena();
 }
 
-Minigame::Minigame(const Minigame &other) :
-    max_enemies(other.max_enemies),
-    minigame_difficulty(other.minigame_difficulty),
-    enemy_spawn_timer(other.enemy_spawn_timer),
-    enemy_spawn_clock(other.enemy_spawn_clock),
-    minigame_arena(other.minigame_arena),
-    minigame_active(other.minigame_active),
-    minigame_failed(other.minigame_failed),
-    minigame_player(other.minigame_player),
-    minigame_delta_time(other.minigame_delta_time),
-    minigame_font(other.minigame_font),
-    minigame_text(other.minigame_text)
+Minigame::Minigame(const Minigame &other)
+    : max_enemies(other.max_enemies),
+      minigame_difficulty(other.minigame_difficulty),
+      frog_counter(other.frog_counter),
+      enemy_spawn_timer(other.enemy_spawn_timer),
+      enemy_spawn_clock(other.enemy_spawn_clock),
+      minigame_arena(other.minigame_arena),
+      minigame_active(other.minigame_active),
+      minigame_failed(other.minigame_failed),
+      minigame_success(other.minigame_success),
+      minigame_player(other.minigame_player),
+      minigame_delta_clock(other.minigame_delta_clock),
+      minigame_delta_time(other.minigame_delta_time),
+      minigame_font(other.minigame_font),
+      minigame_text(other.minigame_text)
 {
     for (const auto& enemy : other.enemies) {
         enemies.push_back(std::unique_ptr<Enemy>(enemy->clone()));
     }
 }
 
-Minigame & Minigame::operator=(const Minigame &other) {
-    if (this != &other) {
-        max_enemies = other.max_enemies;
-        minigame_difficulty = other.minigame_difficulty;
-        minigame_arena = other.minigame_arena;
-        minigame_active = other.minigame_active;
-        minigame_failed = other.minigame_failed;
-        minigame_player = other.minigame_player;
 
-        if (!minigame_font.loadFromFile("textures/fonts/papyrus.ttf")) {
-            throw ResourceLoadException{"Failed to load minigame font!"};
-        }
-
-        minigame_text = other.minigame_text;
-        minigame_text.setFont(minigame_font);
-        enemies.clear();
-        for (const auto& enemy : other.enemies) {
-            enemies.push_back(std::unique_ptr<Enemy>(enemy->clone()));
-        }
-    }
+Minigame & Minigame::operator=(Minigame other) {
+    swap(*this, other);
     return *this;
 }
 
 void Minigame::initMinigameText() {
-    this->minigame_text.setFont(minigame_font);
+    this->minigame_text.setFont(*minigame_font);
     this->minigame_text.setCharacterSize(60);
     this->minigame_text.setString("DODGE!");
     this->minigame_text.setFillColor(sf::Color::White);
@@ -64,7 +50,7 @@ void Minigame::initMinigameText() {
                                     this->minigame_text.getGlobalBounds().height / 2);
     this->minigame_text.setPosition(sf::Vector2f(960.f, 100.f));
 
-    this->minigame_error_text.setFont(minigame_font);
+    this->minigame_error_text.setFont(*minigame_font);
     this->minigame_error_text.setCharacterSize(40);
     this->minigame_error_text.setString("PRESS WASD TO MOVE!");
     this->minigame_error_text.setOrigin(this->minigame_error_text.getGlobalBounds().width / 2,
@@ -73,7 +59,8 @@ void Minigame::initMinigameText() {
 }
 
 void Minigame::initMinigameFont() {
-    if (!this->minigame_font.loadFromFile("textures/fonts/papyrus.ttf")) {
+    this->minigame_font = std::make_shared<sf::Font>();
+    if (!this->minigame_font->loadFromFile("textures/fonts/papyrus.ttf")) {
         throw ResourceLoadException{"Failed to load minigame font!"};
     }
 }
@@ -89,7 +76,7 @@ void Minigame::initMinigameArena() {
 }
 
 void Minigame::updateEnemies(const float deltaTime) {
-    int frog_count = 0, squid_count = 0, pufferfish_count = 0;
+    int frog_count = 0;
     for (const auto& enemy : enemies) {
         enemy->updateEnemy(deltaTime);
         if (this->minigame_player.isPlayerHit(enemy->getEnemyBounds())) {
@@ -98,16 +85,8 @@ void Minigame::updateEnemies(const float deltaTime) {
         if (dynamic_cast<Frog*>(enemy.get()) != nullptr) {
             frog_count++;
         }
-        else if (dynamic_cast<Pufferfish*>(enemy.get()) != nullptr) {
-            pufferfish_count ++;
-        }
-        else if (dynamic_cast<Squid*>(enemy.get()) != nullptr) {
-            squid_count ++;
-        }
     }
     this->frog_counter = frog_count;
-    this->pufferfish_counter = pufferfish_count;
-    this->squid_counter = squid_count;
 }
 
 void Minigame::renderEnemies(sf::RenderTarget& target) const {
@@ -262,8 +241,8 @@ void Minigame::generateEnemy() {
     std::unique_ptr<Enemy> e;
     switch (minigame_difficulty) {
         case 1:
-            this->max_enemies = 16;
-            if ((enemy_type == 0 || enemy_type == 1) && this->squid_counter < 6) {
+            this->max_enemies = 20;
+            if (enemy_type == 0 || enemy_type == 1) {
                 e = std::make_unique<Squid>();
             }
             else {
@@ -271,7 +250,7 @@ void Minigame::generateEnemy() {
             }
             break;
         case 2:
-            this->max_enemies = 14;
+            this->max_enemies = 18;
             if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
                 e = std::make_unique<Frog>();
             }
@@ -280,8 +259,8 @@ void Minigame::generateEnemy() {
             }
             break;
         case 3:
-            this->max_enemies += 6;
-            if (enemy_type == 2 && pufferfish_counter < 2) {
+            this->max_enemies = 16;
+            if (enemy_type == 2) {
                 e = std::make_unique<Pufferfish>();
             }
             else if (enemy_type == 1 && frog_counter < 4) {
@@ -312,7 +291,6 @@ void swap(Minigame &lhs, Minigame &rhs) noexcept {
         swap(lhs.max_enemies, rhs.max_enemies);
         swap(lhs.minigame_difficulty, rhs.minigame_difficulty);
         swap(lhs.frog_counter, rhs.frog_counter);
-        swap(lhs.pufferfish_counter, rhs.pufferfish_counter);
         swap(lhs.enemy_spawn_timer, rhs.enemy_spawn_timer);
         swap(lhs.enemy_spawn_clock, rhs.enemy_spawn_clock);
         swap(lhs.minigame_arena, rhs.minigame_arena);
