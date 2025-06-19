@@ -15,7 +15,7 @@
 class Game {
 private:
     RhythmCircle rhythm_circle;
-    std::vector<Point> points;
+    std::vector<Point<float>> points;
     sf::Font font;
     sf::Text breath_text;
     sf::Text breath_value;
@@ -32,7 +32,7 @@ private:
     MenuScreen menu_screen;
     GameOverScreen game_over_screen;
     int minigame_timer;
-    int points_counter;
+    float points_counter;
     int max_points;
 
     void initFont();

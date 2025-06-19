@@ -61,7 +61,6 @@ add_executable(${MAIN_EXECUTABLE_NAME}
     generated/src/Helper.cpp
     src/Player.cpp
     src/Player.h
-    src/Point.cpp
     src/Point.h
     src/RhythmCircle.cpp
     src/RhythmCircle.h

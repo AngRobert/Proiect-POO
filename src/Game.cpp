@@ -1,4 +1,6 @@
 #include "Game.h"
+#include <sstream>
+#include <iomanip>
 #include <iostream>
 
 #include "GameExceptions.h"
@@ -41,7 +43,7 @@ void Game::initWindow() {
 
 void Game::initPoints() {
     for (int i = 0; i < max_points; ++i) {
-        points.emplace_back();
+        points.emplace_back(Point<float>());
     }
 }
 
@@ -52,22 +54,33 @@ void Game::updateMousePosition() {
 
 void Game::updateText() {
     breath_value.setString(std::to_string(static_cast<int>(player.getBreath())));
-    score_value.setString(std::to_string(points_counter));
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << points_counter;
+
+
+    score_value.setString(oss.str());
 }
 
 void Game::updatePoints() {
     auto it = points.begin();
     while (it != points.end()) {
         if (player.isCollidingWithPoint(it->getPosition())) {
+            const float value = it->getValue();
+            std::string color = it->getColor();
+
+            points_counter += value;
+            std::cout << value << std::endl;
+            std::cout << color << std::endl;
+
             it = points.erase(it);
-            it = points.insert(it, Point());
+            it = points.insert(it, Point<float>());
             ++it;
-            points_counter++;
         } else {
             ++it;
         }
     }
 }
+
 
 void Game::renderCircle() const {
     rhythm_circle.draw(*window);
@@ -148,7 +161,7 @@ void Game::update() {
         player.updatePlayer(mouse_position_window, updateDeltaTime());
     }
     else {
-        this->points_counter = 0; // AND OTHER PLAYER RELATED INFO that doesn't get reset in the player constructor? ???
+        this->points_counter = 0;
         this->minigame_timer_clock.restart();
         this->game_over_screen.updateGameOver(this->mouse_position_window);
     }
@@ -189,6 +202,6 @@ void Game::pollEvents() {
 void Game::generateMinigameTimer() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(3, 4);
+    std::uniform_int_distribution<> dist(30, 45);
     minigame_timer = dist(gen);
 }

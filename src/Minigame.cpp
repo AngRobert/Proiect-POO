@@ -280,7 +280,7 @@ void Minigame::generateEnemy() {
             }
             break;
         case 3:
-            this->max_enemies = 12;
+            this->max_enemies += 6;
             if (enemy_type == 2 && pufferfish_counter < 2) {
                 e = std::make_unique<Pufferfish>();
             }

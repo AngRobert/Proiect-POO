@@ -1,5 +1,5 @@
 #include "RhythmCircle.h"
-#include <SFML/Graphics.hpp> // For sf::RenderTarget
+#include <SFML/Graphics.hpp>
 
 #include "GameExceptions.h"
 
