@@ -14,7 +14,7 @@
 
 class Game {
 private:
-    RhythmCircle rhythm_circle;
+    RhythmCircle& rhythm_circle;
     std::vector<Point<float>> points;
     sf::Font font;
     sf::Text breath_text;

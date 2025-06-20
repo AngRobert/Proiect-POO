@@ -3,9 +3,7 @@
 #include <iostream>
 #include <random>
 #include "GameExceptions.h"
-#include "Pufferfish.h"
-#include "Squid.h"
-
+#include "EnemyFactory.h"
 
 Minigame::Minigame(const int max_enemies_, const int minigame_difficulty_, const float enemy_spawn_timer_)
     : max_enemies(max_enemies_), minigame_difficulty(minigame_difficulty_), enemy_spawn_timer(enemy_spawn_timer_), minigame_delta_time(0.f) {
@@ -234,41 +232,19 @@ void Minigame::pollMinigameEvents(sf::RenderWindow& window, const sf::Event& eve
 }
 
 void Minigame::generateEnemy() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> distrib_enemy(0, 3);
-    const int enemy_type = distrib_enemy(gen);
     std::unique_ptr<Enemy> e;
     switch (minigame_difficulty) {
         case 1:
             this->max_enemies = 20;
-            if (enemy_type == 0 || enemy_type == 1) {
-                e = std::make_unique<Squid>();
-            }
-            else {
-                e = std::make_unique<Fish>();
-            }
+            e = EnemyFactory::create(1, this->frog_counter);
             break;
         case 2:
             this->max_enemies = 18;
-            if ((enemy_type == 1 || enemy_type == 2) && frog_counter < 4) {
-                e = std::make_unique<Frog>();
-            }
-            else {
-                e = std::make_unique<Fish>();
-            }
+            e = EnemyFactory::create(2, this->frog_counter);
             break;
         case 3:
             this->max_enemies = 16;
-            if (enemy_type == 2) {
-                e = std::make_unique<Pufferfish>();
-            }
-            else if (enemy_type == 1 && frog_counter < 4) {
-                e = std::make_unique<Frog>();
-            }
-            else {
-                e = std::make_unique<Fish>();
-            }
+            e = EnemyFactory::create(3, this->frog_counter);
             break;
         default:
             throw InvalidMinigameDifficulty{minigame_difficulty};

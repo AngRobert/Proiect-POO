@@ -1,11 +1,10 @@
 #include "Game.h"
 #include <sstream>
 #include <iomanip>
-#include <iostream>
 
 #include "GameExceptions.h"
 
-Game::Game() : rhythm_circle("textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f)), window(nullptr), event(), minigame_timer(1000), points_counter(0), max_points(5) {
+Game::Game() : rhythm_circle(RhythmCircle::getInstance("textures/rhythmcircle_texture.png", sf::Vector2f(960.f, 150.f))), window(nullptr), event(), minigame_timer(1000), points_counter(0), max_points(5) {
     initWindow();
     initFont();
     initPoints();
@@ -66,11 +65,8 @@ void Game::updatePoints() {
     while (it != points.end()) {
         if (player.isCollidingWithPoint(it->getPosition())) {
             const float value = it->getValue();
-            std::string color = it->getColor();
 
             points_counter += value;
-            std::cout << value << std::endl;
-            std::cout << color << std::endl;
 
             it = points.erase(it);
             it = points.insert(it, Point<float>());
@@ -202,6 +198,6 @@ void Game::pollEvents() {
 void Game::generateMinigameTimer() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(30, 45);
+    std::uniform_int_distribution<> dist(10, 15);
     minigame_timer = dist(gen);
 }

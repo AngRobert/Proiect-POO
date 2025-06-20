@@ -88,6 +88,8 @@ add_executable(${MAIN_EXECUTABLE_NAME}
         src/GameExceptions.h
         src/Squid.cpp
         src/Squid.h
+        src/EnemyFactory.cpp
+        src/EnemyFactory.h
 )
 
 # NOTE: Add all defined targets (e.g. executables, libraries, etc. )

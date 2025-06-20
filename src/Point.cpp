@@ -48,7 +48,3 @@ T Point<T>::getValue() const {
     return this->value;
 }
 
-template<typename T>
-std::string Point<T>::getColor() const {
-    return this->colour;
-}

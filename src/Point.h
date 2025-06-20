@@ -16,7 +16,7 @@ public:
     void draw(sf::RenderTarget& target) const;
     [[nodiscard]] sf::Vector2f getPosition() const;
     [[nodiscard]] T getValue() const;
-    [[nodiscard]] std::string getColor() const;
+
 };
 
 #include "Point.cpp"
