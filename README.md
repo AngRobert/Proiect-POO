@@ -18,5 +18,5 @@ blue inner circle, that is the best time to stroke!
 
 W: Press W to make your next stroke be a "breath stroke"! What this means is that the next time you press Q or E, the player will take a restoring breath.
 
-Best / Safest way to play (for now (this is subject to change)): Press Q when the timing is right, then W, and E, when the timing is right again. This should ensure that you don't run out of breath while moving and collecting points.
+Best / Safest way to play: Press Q when the timing is right, then W, and E, when the timing is right again. This should ensure that you don't run out of breath while moving and collecting points.
 
